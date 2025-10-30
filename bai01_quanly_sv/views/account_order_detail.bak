@@ -1,0 +1,26 @@
+<?php $title = 'Chi tiết đơn hàng'; ob_start(); ?>
+<h1 class="h4 mb-3">Đơn hàng #<?= (int)($order['id'] ?? 0) ?></h1>
+<?php if (!$order): ?>
+  <div class="alert alert-warning">Không tìm thấy đơn hàng.</div>
+<?php else: ?>
+  <div class="card p-3 shadow-sm mb-3">
+    <div><strong>Ngày:</strong> <?= htmlspecialchars($order['created_at']) ?></div>
+    <div><strong>Trạng thái:</strong> <?= htmlspecialchars($order['status']) ?></div>
+    <div><strong>Tổng:</strong> <?= number_format((int)$order['total'],0,',','.') ?>₫</div>
+  </div>
+  <div class="card p-3 shadow-sm">
+    <h2 class="h6">Sản phẩm</h2>
+    <table class="table table-sm">
+      <thead><tr><th>#</th><th>Tên</th><th class="text-end">SL</th><th class="text-end">Giá</th><th class="text-end">Thành tiền</th></tr></thead>
+      <tbody>
+        <?php $sum=0; foreach (($items ?? []) as $it): $line=(int)$it['quantity']*(int)$it['price']; $sum+=$line; ?>
+          <tr><td><?= (int)$it['product_id'] ?></td><td><?= htmlspecialchars($it['name'] ?? '') ?></td><td class="text-end"><?= (int)$it['quantity'] ?></td><td class="text-end"><?= number_format((int)$it['price'],0,',','.') ?>₫</td><td class="text-end"><?= number_format($line,0,',','.') ?>₫</td></tr>
+        <?php endforeach; ?>
+      </tbody>
+      <tfoot><tr><th colspan="4" class="text-end">Tổng</th><th class="text-end"><?= number_format($sum,0,',','.') ?>₫</th></tr></tfoot>
+    </table>
+    <a class="btn btn-outline-secondary" href="index.php?action=account_orders">Quay lại</a>
+  </div>
+<?php endif; ?>
+<?php $content = ob_get_clean(); require __DIR__.'/layout.php'; ?>
+

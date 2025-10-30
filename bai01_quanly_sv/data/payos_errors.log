@@ -1,0 +1,3 @@
+2025-10-25T07:15:18+02:00 | createPaymentLink failed | order#7 | {"error":true,"message":"HTTP request failed (no cURL)"}
+2025-10-27T06:26:09+01:00 | createPaymentLink failed | order#8 | {"error":true,"message":"file_get_contents(https:\/\/api.payos.vn\/v2\/payment-requests): Failed to open stream: php_network_getaddresses: getaddrinfo failed: No such host is known. "}
+2025-10-27T07:41:23+01:00 | createPaymentLink failed | order#12 | {"error":true,"message":"file_get_contents(https:\/\/api.payos.vn\/v2\/payment-requests): Failed to open stream: php_network_getaddresses: getaddrinfo failed: No such host is known. "}

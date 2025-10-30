@@ -1,0 +1,62 @@
+<?php $title = $product ? $product['name'] : 'Sản phẩm'; ob_start(); ?>
+<?php if (!$product): ?>
+  <div class="alert alert-warning">Không tìm thấy sản phẩm.</div>
+<?php else: ?>
+  <?php
+    $pid = (int)$product['id'];
+    $pdo = \App\Database::getInstance()->pdo();
+    $imgs = $pdo->prepare('SELECT image FROM product_images WHERE product_id = :p ORDER BY sort');
+    $imgs->execute([':p'=>$pid]);
+    $gallery = $imgs->fetchAll(PDO::FETCH_COLUMN) ?: [];
+    $pi = \App\Models\Product::priceInfo($pid); $promo = $pi['promo_price'] ?? null; $hasD = $promo && $promo < (int)$product['price'];
+    $attrs = $pdo->prepare('SELECT at.name AS type, a.name AS name FROM product_attributes pa JOIN attributes a ON pa.attribute_id = a.id JOIN attribute_types at ON a.type_id = at.id WHERE pa.product_id = :p ORDER BY at.id, a.id');
+    $attrs->execute([':p'=>$pid]);
+    $specs = $attrs->fetchAll(PDO::FETCH_ASSOC) ?: [];
+  ?>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm p-3">
+        <img id="mainImg" src="<?= htmlspecialchars(($gallery[0] ?? $product['image']) ?: 'assets/images/placeholder.svg') ?>" alt="" style="width:100%; height:360px; object-fit:cover; border-radius:8px;">
+        <div class="d-flex gap-2 mt-2" id="thumbs">
+          <?php foreach ($gallery as $g): ?>
+            <img src="<?= htmlspecialchars($g) ?>" style="width:72px; height:72px; object-fit:cover; border-radius:6px; cursor:pointer; border:1px solid #e9ecef;" onclick="document.getElementById('mainImg').src=this.src;">
+          <?php endforeach; ?>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="card shadow-sm p-3">
+        <h1 class="h4 mb-2"><?= htmlspecialchars($product['name']) ?></h1>
+        <?php if ($hasD): ?>
+          <div class="mb-2">
+            <span class="h3 text-danger fw-bold"><?= number_format((int)$promo,0,',','.') ?>₫</span>
+            <span class="ms-2 text-muted text-decoration-line-through"><?= number_format((int)$product['price'],0,',','.') ?>₫</span>
+          </div>
+        <?php else: ?>
+          <div class="h3" style="color:#333; font-weight:700;">
+            <?= number_format((int)$product['price'],0,',','.') ?>₫
+          </div>
+        <?php endif; ?>
+        <p class="text-muted"><?= nl2br(htmlspecialchars($product['description'] ?? '')) ?></p>
+        <form method="post" action="index.php?action=add_to_cart" class="d-flex align-items-center gap-2">
+          <input type="hidden" name="id" value="<?= $pid ?>">
+          <label class="form-label mb-0">Số lượng</label>
+          <input type="number" name="quantity" value="1" min="1" class="form-control" style="width:120px;">
+          <button class="btn btn-primary" type="submit">Thêm vào giỏ</button>
+        </form>
+      </div>
+      <?php if (!empty($specs)): ?>
+      <div class="card shadow-sm p-3 mt-3">
+        <h2 class="h6">Thông số nổi bật</h2>
+        <div class="row">
+          <?php foreach ($specs as $s): ?>
+            <div class="col-6 mb-2"><strong><?= htmlspecialchars($s['type']) ?>:</strong> <?= htmlspecialchars($s['name']) ?></div>
+          <?php endforeach; ?>
+        </div>
+      </div>
+      <?php endif; ?>
+    </div>
+  </div>
+<?php endif; ?>
+<?php $content = ob_get_clean(); require __DIR__ . '/layout.php'; ?>
+
