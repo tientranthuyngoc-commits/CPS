@@ -321,3 +321,18 @@ CREATE TABLE IF NOT EXISTS chitietphieunhap (
 );
 CREATE INDEX IF NOT EXISTS idx_ctpn_pn ON chitietphieunhap(id_phieunhap);
 CREATE INDEX IF NOT EXISTS idx_ctpn_sp ON chitietphieunhap(id_sanpham);
+
+
+-- Complaints: người dùng khiếu nại / báo cáo vi phạm sản phẩm
+CREATE TABLE IF NOT EXISTS complaints (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE SET NULL,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  status TEXT DEFAULT 'pending', -- pending | processing | done
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_complaints_product ON complaints(product_id);
+CREATE INDEX IF NOT EXISTS idx_complaints_user ON complaints(user_id);
+
