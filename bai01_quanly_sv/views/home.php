@@ -73,7 +73,20 @@
   .discount-badge { position:absolute; top:10px; right:10px; background:#ef4444; color:#fff; padding:.4rem .8rem; border-radius:8px; font-weight:700; font-size:.875rem; box-shadow:0 2px 8px rgba(239,68,68,.4); }
   .filter-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius:20px; padding:2rem; color:#fff; margin-bottom:2rem; }
   .filter-card .form-label { color:#fff; font-weight:600; }
-  .filter-card .form-control, .filter-card .form-select { border-radius:10px; border:2px solid rgba(255,255,255,.3); background:rgba(255,255,255,.9); }
+  /* Vùng danh sách thuộc tính có nền trắng: cần màu chữ tối */
+  .filter-card .bg-white { color:#111827; }
+  .filter-card .form-check-label { color:#111827; }
+  .filter-card .input-group-text { background:#ffffff; color:#111827; border:2px solid rgba(255,255,255,.3); }
+  /* Đảm bảo chữ trong ô nhập/Select là màu tối để tương phản với nền trắng của input */
+  .filter-card .form-control,
+  .filter-card .form-select {
+    border-radius:10px;
+    border:2px solid rgba(255,255,255,.3);
+    background:rgba(255,255,255,.95);
+    color:#111827; /* text đậm, không bị trùng màu với nền */
+  }
+  .filter-card .form-control::placeholder { color:#6b7280; opacity:1; }
+  .filter-card .form-select option { color:#111827; background:#ffffff; }
   .product-grid-card { height:100%; border-radius:16px; overflow:hidden; transition:all .3s ease; position:relative; }
   .product-grid-card img { height:240px; object-fit:cover; transition: transform .3s ease; }
   .product-grid-card:hover img { transform: scale(1.1); }
