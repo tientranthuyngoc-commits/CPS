@@ -1,6 +1,6 @@
 
-<?php
-declare(strict_types=1);
+<?php 
+// declare(strict_types=1);
 // THÊM DÒNG NÀY ĐỂ TRÁNH LỖI HEADERS
 ob_start();
 session_start();
@@ -31,9 +31,9 @@ use App\Controllers\AccountController;
 use App\Controllers\BrandController;
 use App\Controllers\PostController;
 use App\Controllers\WishlistController;
+use App\Controllers\ComplaintController;
 
 $action = $_GET['action'] ?? 'home';
-
 try {
     switch ($action) {
         case 'home': (new HomeController())->index(); break;
@@ -124,13 +124,31 @@ try {
         case 'wishlist': (new WishlistController())->view(); break;
         case 'wishlist_add': (new WishlistController())->add(); break;
         case 'wishlist_remove': (new WishlistController())->remove(); break;
+
+
+        case 'report_product':
+            (new ComplaintController())->showForm();
+            break;
+
+        case 'submit_report':
+            (new ComplaintController())->submit();
+            break;
+
+
         case 'admin_users': (new AdminController())->users(); break;
         case 'admin_user_form': (new AdminController())->userForm(); break;
         case 'admin_user_save': (new AdminController())->userSave(); break;
         case 'admin_user_delete': (new AdminController())->userDelete(); break;
         case 'admin_user_toggle': (new AdminController())->userToggleActive(); break;
         case 'admin_reports': (new AdminController())->reports(); break;
-        default: http_response_code(404); require __DIR__.'/../views/error_404.php';
+        
+
+        
+
+
+        default: 
+            http_response_code(404); 
+            require __DIR__.'/../views/error_404.php';
     }
     
 } catch (Throwable $e) {
