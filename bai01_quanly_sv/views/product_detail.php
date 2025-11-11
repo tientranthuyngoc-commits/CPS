@@ -1,3 +1,10 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+
+
 <?php $title = $product ? $product['name'] : 'Sản phẩm'; ob_start(); ?>
 
 <?php if (!$product): ?>
@@ -22,6 +29,22 @@
     $specs = $attrs->fetchAll(PDO::FETCH_ASSOC) ?: [];
   ?>
   <div class="product-detail">
+
+
+    <!-- Thông báo gửi báo cáo thành công hay không -->
+    <?php if (!empty($_GET['reported'])): ?>
+      <div class="alert alert-success" style="margin-bottom: 12px;">
+        ✅ Cảm ơn bạn! Báo cáo của bạn đã được gửi và đang chờ duyệt.
+      </div>
+    <?php endif; ?>
+
+    <?php if (!empty($_GET['error'])): ?>
+      <div class="alert alert-danger" style="margin-bottom: 12px;">
+        ⚠️ Gửi báo cáo thất bại: <?= htmlspecialchars($_GET['error']) ?>
+      </div>
+    <?php endif; ?>
+
+
     <div>
       <img id="mainImg" class="cover" src="<?= htmlspecialchars($gallery[0]) ?>" alt="<?= htmlspecialchars($product['name']) ?>">
       <?php if (count($gallery) > 1): ?>
@@ -117,6 +140,18 @@
         <input name="comment" placeholder="Chia sẻ trải nghiệm của bạn..." style="width:60%;margin:0 8px">
         <button class="btn primary">Gửi</button>
       </form>
+
+
+
+      <!-- Nút khiếu nại và báo cáo sản phẩm vi phạm -->
+      <a href="../views/report_product.php?product_id=<?= $pid ?>"
+        class="btn btn-outline-danger"
+        style="margin-bottom: 10px; display:inline-block;">
+        Báo cáo sản phẩm vi phạm
+      </a>
+
+
+
     <?php else: ?>
       <div class="alert alert-info">Bạn cần <a href="index.php?action=login">đăng nhập</a> để đánh giá.</div>
     <?php endif; ?>
