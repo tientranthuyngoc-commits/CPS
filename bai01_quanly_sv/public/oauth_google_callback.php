@@ -2,13 +2,48 @@
 // Xử lý callback OAuth Google: đổi code -> token, lấy id_token
 // Lưu ý: file này được include thông qua public/index.php (đã nạp autoload + Database)
 if (session_status()===PHP_SESSION_NONE) session_start();
+// Ensure autoload/Database if this file is accessed directly (not via index.php)
+if (!class_exists('App\\Database') && is_readable(__DIR__ . '/../src/Database.php')) {
+  require __DIR__ . '/../src/Database.php';
+  spl_autoload_register(function($class){
+    $prefix = 'App\\\\';
+    $base = __DIR__ . '/../src/';
+    if (str_starts_with($class, $prefix)) {
+      $rel = substr($class, strlen($prefix));
+      $file = $base . str_replace('\\\\','/',$rel) . '.php';
+      if (is_readable($file)) require $file;
+    }
+  });
+}
 function oauth_log(string $msg): void { @file_put_contents(__DIR__.'/../data/oauth_google.log', date('c')." | ".$msg."\n", FILE_APPEND); }
 
-$cfg = require __DIR__ . '/../includes/auth_providers.php';
+// Load config safely and validate
+$cfg = @require __DIR__ . '/../includes/auth_providers.php';
+if (!is_array($cfg)) { $cfg = []; }
 $g = $cfg['google'] ?? [];
-if (empty($g['enabled'])) { oauth_log('error: disabled'); header('Location: index.php?action=login&err=google_disabled'); exit; }
+if (empty($g['enabled']) || empty($g['client_id']) || empty($g['client_secret']) || empty($g['redirect_uri'])) {
+  oauth_log('error: disabled');
+  header('Location: index.php?action=login&err=google_disabled');
+  exit;
+}
 
 function http_post_json(string $url, array $data): array {
+  // Prefer cURL if available for better compatibility
+  if (function_exists('curl_init')) {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+      CURLOPT_POST => true,
+      CURLOPT_POSTFIELDS => http_build_query($data),
+      CURLOPT_HTTPHEADER => ['Content-Type: application/x-www-form-urlencoded'],
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_TIMEOUT => 30,
+    ]);
+    $raw = curl_exec($ch);
+    curl_close($ch);
+    return json_decode($raw ?: '[]', true) ?: [];
+  }
+
+  // Fallback to streams
   $opts = [
     'http' => [
       'method' => 'POST',
@@ -20,8 +55,7 @@ function http_post_json(string $url, array $data): array {
   ];
   $ctx = stream_context_create($opts);
   $raw = @file_get_contents($url,false,$ctx);
-  $out = json_decode($raw ?: '[]', true) ?: [];
-  return $out;
+  return json_decode($raw ?: '[]', true) ?: [];
 }
 
 $code = $_GET['code'] ?? '';

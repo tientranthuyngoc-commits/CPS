@@ -27,11 +27,7 @@
         <td><small><?= htmlspecialchars($u['email']) ?></small></td>
         <td><small class="text-muted"><?= htmlspecialchars($u['phone']) ?></small></td>
         <td class="text-center">
-          <?php if ($u['role'] === 'admin'): ?>
-            <span class="badge bg-danger"><i class="bi bi-shield"></i> Admin</span>
-          <?php else: ?>
-            <span class="badge bg-secondary">User</span>
-          <?php endif; ?>
+          <span class="badge bg-secondary"><?= htmlspecialchars(role_vi($u['role'] ?? 'user')) ?></span>
         </td>
         <td class="text-center">
           <?= ((int)$u['is_active']===1? '<span class="badge bg-success">Hoạt động</span>' : '<span class="badge bg-secondary">Khóa</span>') ?>
@@ -59,4 +55,3 @@
   </table>
 </div>
 <?php $content = ob_get_clean(); require __DIR__ . '/../layout.php'; ?>
-

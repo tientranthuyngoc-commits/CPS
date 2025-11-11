@@ -1,4 +1,5 @@
 <?php $title = 'Quản lý sản phẩm'; ob_start(); ?>
+<?php require_once __DIR__ . '/../../includes/rbac.php'; ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="h4 mb-0 fw-bold"><i class="bi bi-box-seam me-2"></i>Sản phẩm</h1>
   <div class="d-flex gap-2">

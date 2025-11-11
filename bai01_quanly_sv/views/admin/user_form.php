@@ -1,4 +1,7 @@
-<?php $title = ($item? 'Sửa' : 'Thêm') . ' tài khoản'; ob_start(); ?>
+<?php
+$title = ($item ? 'Sửa' : 'Thêm') . ' tài khoản';
+ob_start();
+?>
 <h1 class="h4 mb-3"><?= $title ?></h1>
 <form method="post" action="index.php?action=admin_user_save" class="card shadow-sm p-3" autocomplete="off">
   <input type="hidden" name="id" value="<?= (int)($item['id'] ?? 0) ?>">
@@ -9,8 +12,14 @@
     <div class="col-md-4"><label class="form-label">Mật khẩu <?= !empty($item)? '(để trống nếu giữ nguyên)':'' ?></label><input class="form-control" type="password" name="password"></div>
     <div class="col-md-4"><label class="form-label">Quyền</label>
       <select name="role" class="form-select">
-        <option value="user" <?= (($item['role'] ?? 'user')==='user')?'selected':'' ?>>user</option>
-        <option value="admin" <?= (($item['role'] ?? 'user')==='admin')?'selected':'' ?>>admin</option>
+        <?php
+          // Hiển thị động tất cả role từ RBAC trung tâm
+          require_once __DIR__ . '/../../includes/rbac.php';
+          $currentRole = $item['role'] ?? 'user';
+          foreach (role_options() as $value => $label):
+        ?>
+          <option value="<?= htmlspecialchars($value) ?>" <?= ($currentRole === $value) ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
+        <?php endforeach; ?>
       </select>
     </div>
     <div class="col-md-4"><label class="form-label">Trạng thái</label>

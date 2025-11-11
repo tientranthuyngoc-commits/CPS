@@ -10,6 +10,7 @@ if (!isset($flash) && isset($_SESSION['flash'])) {
   $flash = $_SESSION['flash'];
   unset($_SESSION['flash']);
 }
+require_once __DIR__ . '/../includes/rbac.php';
 ?>
 <!doctype html>
 <html lang="vi">
@@ -221,7 +222,7 @@ if (!isset($flash) && isset($_SESSION['flash'])) {
               <li class="nav-item"><a class="nav-link" href="index.php?action=register"><i class="fas fa-user-plus me-1"></i>Đăng ký</a></li>
             <?php endif; ?>
 
-            <?php if (($_SESSION['role'] ?? 'user') === 'admin'): ?>
+            <?php require_once __DIR__ . '/../includes/rbac.php'; if (can('admin.panel')): ?>
               <li class="nav-item"><a class="nav-link" href="index.php?action=admin"><i class="fas fa-cog me-1"></i>Quản trị</a></li>
             <?php endif; ?>
           </ul>
@@ -230,7 +231,7 @@ if (!isset($flash) && isset($_SESSION['flash'])) {
     </nav>
 
     <main class="container">
-      <?php if (($_SESSION['role'] ?? '') === 'admin' && str_starts_with((string)($_GET['action'] ?? 'home'), 'admin')): ?>
+      <?php require_once __DIR__ . '/../includes/rbac.php'; if (can('admin.panel') && str_starts_with((string)($_GET['action'] ?? 'home'), 'admin')): ?>
         <div class="admin-nav shadow-sm mb-4">
           <ul class="nav nav-pills flex-wrap gap-2">
             <?php
@@ -239,25 +240,32 @@ if (!isset($flash) && isset($_SESSION['flash'])) {
                 $active = str_starts_with($a,$act) ? 'active' : '';
                 return "<li class='nav-item'><a class='nav-link $active' href='index.php?action=$act'><i class='$icon me-2'></i>$text</a></li>";
               };
+              $show = function($perm, $act, $icon, $text) use ($link){
+                if ($perm === null || can($perm)) echo $link($act,$icon,$text);
+              };
+
+              // Dashboard (chỉ cần vào admin)
               echo $link('admin','fas fa-chart-line','Tổng quan');
-              echo $link('admin_products','fas fa-box','Sản phẩm');
-              echo $link('admin_orders','fas fa-shopping-bag','Đơn hàng');
-              echo $link('admin_reports','fas fa-chart-pie','Báo cáo');
-              echo $link('admin_banners','fas fa-image','Banner');
-              echo $link('admin_posts','fas fa-newspaper','Bài viết');
-              echo $link('admin_categories','fas fa-folder','Danh mục');
-              echo $link('admin_brands','fas fa-award','Thương hiệu');
-              echo $link('admin_users','fas fa-users','Người dùng');
-              echo $link('admin_tax_rates','fas fa-percent','Thuế suất');
-              echo $link('admin_tax_categories','fas fa-layer-group','Nhóm thuế');
-              echo $link('admin_tax_mappings','fas fa-link','Ánh xạ thuế');
-              echo $link('admin_report_tax','fas fa-file-csv','Báo cáo thuế');
-              echo $link('admin_promotions','fas fa-bolt','Khuyến mãi');
-              echo $link('admin_coupons','fas fa-ticket-alt','Mã giảm giá');
-              echo $link('admin_pages','fas fa-file','Trang');
-              echo $link('admin_customers','fas fa-user-friends','Khách hàng');
-              echo $link('admin_attr_types','fas fa-sitemap','Nhóm thuộc tính');
-              echo $link('admin_attrs','fas fa-tags','Thuộc tính');
+              // Theo quyền chi tiết
+              $show('product.view','admin_products','fas fa-box','Sản phẩm');
+              $show('order.view','admin_orders','fas fa-shopping-bag','Đơn hàng');
+              $show('report.view','admin_reports','fas fa-chart-pie','Báo cáo');
+              $show('content.manage','admin_banners','fas fa-image','Banner');
+              $show('content.manage','admin_posts','fas fa-newspaper','Bài viết');
+              $show('category.manage','admin_categories','fas fa-folder','Danh mục');
+              $show('brand.manage','admin_brands','fas fa-award','Thương hiệu');
+              $show('user.view','admin_users','fas fa-users','Người dùng');
+              $show('tax.view','admin_tax_rates','fas fa-percent','Thuế suất');
+              $show('tax.view','admin_tax_categories','fas fa-layer-group','Nhóm thuế');
+              $show('tax.view','admin_tax_mappings','fas fa-link','Ánh xạ thuế');
+              $show('report.view','admin_report_tax','fas fa-file-csv','Báo cáo thuế');
+              $show('content.manage','admin_promotions','fas fa-bolt','Khuyến mãi');
+              $show('content.manage','admin_coupons','fas fa-ticket-alt','Mã giảm giá');
+              $show('content.manage','admin_pages','fas fa-file','Trang');
+              $show('customer.view','admin_customers','fas fa-user-friends','Khách hàng');
+              // Thuộc tính: gắn theo quyền chỉnh sửa sản phẩm
+              $show('product.update','admin_attr_types','fas fa-sitemap','Nhóm thuộc tính');
+              $show('product.update','admin_attrs','fas fa-tags','Thuộc tính');
             ?>
           </ul>
         </div>

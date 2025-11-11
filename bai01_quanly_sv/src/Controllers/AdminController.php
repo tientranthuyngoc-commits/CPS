@@ -6,8 +6,8 @@ class AdminController
     private function ensureSession(): void { if (session_status()===PHP_SESSION_NONE) session_start(); }
     private function requireAdmin(): void {
         $this->ensureSession();
-        if (empty($_SESSION['user_id'])) { header('Location: index.php?action=login'); exit; }
-        if (($_SESSION['role'] ?? 'user') !== 'admin') { header('Location: index.php'); exit; }
+        require_once __DIR__ . '/../../includes/rbac.php';
+        require_permission('admin.panel');
     }
 
     public function dashboard(): void
@@ -33,6 +33,7 @@ class AdminController
     public function products(): void
     {
         $this->requireAdmin();
+        require_permission('product.view');
         $pdo = \App\Database::getInstance()->pdo();
         $list = $pdo->query('SELECT p.id, p.name, p.price, p.image, p.sku, p.stock, p.status, b.name AS brand, p.created_at FROM products p LEFT JOIN brands b ON p.brand_id=b.id ORDER BY p.id DESC')->fetchAll(\PDO::FETCH_ASSOC);
         require __DIR__ . '/../../views/admin/products_list.php';
@@ -42,6 +43,7 @@ class AdminController
     {
         $this->requireAdmin();
         $id = (int)($_GET['id'] ?? 0);
+        if ($id > 0) { require_permission('product.update'); } else { require_permission('product.create'); }
         $product = $id ? \App\Models\Product::find($id) : null;
         $categories = \App\Models\Category::all();
         $selectedCategoryId = 0;
@@ -62,6 +64,7 @@ class AdminController
     {
         $this->requireAdmin();
         $id = (int)($_POST['id'] ?? 0);
+        if ($id > 0) { require_permission('product.update'); } else { require_permission('product.create'); }
         $data = [
             'name' => trim($_POST['name'] ?? ''),
             'description' => trim($_POST['description'] ?? ''),
@@ -119,12 +122,14 @@ class AdminController
     public function brands(): void
     {
         $this->requireAdmin();
+        require_permission('brand.manage');
         $list = \App\Models\Brand::all();
         require __DIR__ . '/../../views/admin/brands_list.php';
     }
     public function brandForm(): void
     {
         $this->requireAdmin();
+        require_permission('brand.manage');
         $id = (int)($_GET['id'] ?? 0);
         $item = $id ? \App\Models\Brand::find($id) : null;
         require __DIR__ . '/../../views/admin/brand_form.php';
@@ -132,6 +137,7 @@ class AdminController
     public function brandSave(): void
     {
         $this->requireAdmin();
+        require_permission('brand.manage');
         $id = (int)($_POST['id'] ?? 0); $name = trim($_POST['name'] ?? ''); $slug = trim($_POST['slug'] ?? '');
         if ($name!=='') { if ($id) \App\Models\Brand::update($id,$name,$slug); else \App\Models\Brand::create($name,$slug); }
         header('Location: index.php?action=admin_brands');
@@ -139,6 +145,7 @@ class AdminController
     public function brandDelete(): void
     {
         $this->requireAdmin();
+        require_permission('brand.manage');
         $id = (int)($_GET['id'] ?? 0); if ($id) \App\Models\Brand::delete($id);
         header('Location: index.php?action=admin_brands');
     }
@@ -146,6 +153,7 @@ class AdminController
     public function productDelete(): void
     {
         $this->requireAdmin();
+        require_permission('product.delete');
         $id = (int)($_GET['id'] ?? 0);
         if ($id) { \App\Models\Product::delete($id); }
         header('Location: index.php?action=admin_products');
@@ -154,6 +162,7 @@ class AdminController
     public function orders(): void
     {
         $this->requireAdmin();
+        require_permission('order.view');
         $pdo = \App\Database::getInstance()->pdo();
         $status = trim($_GET['status'] ?? '');
         $q = trim($_GET['q'] ?? '');
@@ -173,6 +182,7 @@ class AdminController
     public function orderPaymentStatus(): void
     {
         $this->requireAdmin();
+        require_permission('order.update');
         $id = (int)($_POST['id'] ?? 0);
         $ps = trim($_POST['payment_status'] ?? 'unpaid');
         $pdo = \App\Database::getInstance()->pdo();
@@ -184,6 +194,7 @@ class AdminController
     public function orderStatus(): void
     {
         $this->requireAdmin();
+        require_permission('order.update');
         $id = (int)($_POST['id'] ?? 0);
         $status = trim($_POST['status'] ?? 'pending');
         if ($id) { \App\Models\OrderAdmin::updateStatus($id, $status); }
@@ -194,6 +205,7 @@ class AdminController
     public function orderDetail(): void
     {
         $this->requireAdmin();
+        require_permission('order.view');
         $id = (int)($_GET['id'] ?? 0);
         
         if (!$id) {
@@ -231,6 +243,7 @@ class AdminController
     public function orderPrint(): void
     {
         $this->requireAdmin();
+        require_permission('order.view');
         $id = (int)($_GET['id'] ?? 0);
         $pdo = \App\Database::getInstance()->pdo();
         $st = $pdo->prepare('SELECT * FROM orders WHERE id=:id'); $st->execute([':id'=>$id]);
@@ -244,6 +257,7 @@ class AdminController
     public function taxRates(): void
     {
         $this->requireAdmin();
+        require_permission('tax.view');
         $pdo = \App\Database::getInstance()->pdo();
         $rows = $pdo->query('SELECT * FROM tax_rates ORDER BY id DESC')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
         require __DIR__ . '/../../views/admin/tax_rates.php';
@@ -252,6 +266,7 @@ class AdminController
     public function taxRateForm(): void
     {
         $this->requireAdmin();
+        require_permission('tax.manage');
         $id = (int)($_GET['id'] ?? 0);
         $pdo = \App\Database::getInstance()->pdo();
         $rate = null;
@@ -262,6 +277,7 @@ class AdminController
     public function taxRateSave(): void
     {
         $this->requireAdmin();
+        require_permission('tax.manage');
         $pdo = \App\Database::getInstance()->pdo();
         $id = (int)($_POST['id'] ?? 0);
         $code = trim($_POST['code'] ?? '');
@@ -285,6 +301,7 @@ class AdminController
     public function taxCategories(): void
     {
         $this->requireAdmin();
+        require_permission('tax.view');
         $pdo = \App\Database::getInstance()->pdo();
         $rows = $pdo->query('SELECT * FROM tax_categories ORDER BY id DESC')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
         require __DIR__ . '/../../views/admin/tax_categories.php';
@@ -293,6 +310,7 @@ class AdminController
     public function taxCategoryForm(): void
     {
         $this->requireAdmin();
+        require_permission('tax.manage');
         $id = (int)($_GET['id'] ?? 0);
         $pdo = \App\Database::getInstance()->pdo();
         $row = null;
@@ -303,6 +321,7 @@ class AdminController
     public function taxCategorySave(): void
     {
         $this->requireAdmin();
+        require_permission('tax.manage');
         $pdo = \App\Database::getInstance()->pdo();
         $id = (int)($_POST['id'] ?? 0);
         $code = trim($_POST['code'] ?? '');
@@ -317,6 +336,7 @@ class AdminController
     public function taxMappings(): void
     {
         $this->requireAdmin();
+        require_permission('tax.view');
         $pdo = \App\Database::getInstance()->pdo();
         $cats = $pdo->query('SELECT * FROM tax_categories ORDER BY id DESC')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
         $rates = $pdo->query('SELECT * FROM tax_rates WHERE active=1 ORDER BY code')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
@@ -328,6 +348,7 @@ class AdminController
     public function taxMappingSave(): void
     {
         $this->requireAdmin();
+        require_permission('tax.manage');
         $pdo = \App\Database::getInstance()->pdo();
         $cat = (int)($_POST['tax_category_id'] ?? 0);
         $rate = (int)($_POST['tax_rate_id'] ?? 0);
@@ -341,6 +362,7 @@ class AdminController
     public function reportTaxCsv(): void
     {
         $this->requireAdmin();
+        require_permission('report.view');
         $from = trim($_GET['from'] ?? '');
         $to   = trim($_GET['to'] ?? '');
         $pdo = \App\Database::getInstance()->pdo();
@@ -360,6 +382,7 @@ class AdminController
     public function ordersExport(): void
     {
         $this->requireAdmin();
+        require_permission('report.view');
         $pdo = \App\Database::getInstance()->pdo();
         $status = trim($_GET['status'] ?? '');
         $q = trim($_GET['q'] ?? '');
@@ -382,6 +405,7 @@ class AdminController
     public function categories(): void
     {
         $this->requireAdmin();
+        require_permission('category.manage');
         $list = \App\Models\Category::all();
         require __DIR__ . '/../../views/admin/categories_list.php';
     }
@@ -389,6 +413,7 @@ class AdminController
     public function categoryForm(): void
     {
         $this->requireAdmin();
+        require_permission('category.manage');
         $id = (int)($_GET['id'] ?? 0);
         $category = $id ? \App\Models\Category::find($id) : null;
         require __DIR__ . '/../../views/admin/category_form.php';
@@ -397,6 +422,7 @@ class AdminController
     public function categorySave(): void
     {
         $this->requireAdmin();
+        require_permission('category.manage');
         $id = (int)($_POST['id'] ?? 0);
         $name = trim($_POST['name'] ?? '');
         if ($name !== '') {
@@ -409,6 +435,7 @@ class AdminController
     public function categoryDelete(): void
     {
         $this->requireAdmin();
+        require_permission('category.manage');
         $id = (int)($_GET['id'] ?? 0);
         if ($id) { \App\Models\Category::delete($id); }
         header('Location: index.php?action=admin_categories');
@@ -700,6 +727,7 @@ class AdminController
     public function users(): void
     {
         $this->requireAdmin();
+        require_permission('user.view');
         $pdo = \App\Database::getInstance()->pdo();
         $list = $pdo->query('SELECT id, username, email, phone, role, is_active, created_at FROM users ORDER BY id DESC')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
         require __DIR__ . '/../../views/admin/users_list.php';
@@ -708,6 +736,7 @@ class AdminController
     public function userForm(): void
     {
         $this->requireAdmin();
+        require_permission('user.manage');
         $pdo = \App\Database::getInstance()->pdo();
         $id = (int)($_GET['id'] ?? 0);
         $item = null;
@@ -722,12 +751,16 @@ class AdminController
     public function userSave(): void
     {
         $this->requireAdmin();
+        require_permission('user.manage');
         $pdo = \App\Database::getInstance()->pdo();
         $id = (int)($_POST['id'] ?? 0);
         $username = trim($_POST['username'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $phone = trim($_POST['phone'] ?? '');
-        $role = in_array($_POST['role'] ?? 'user', ['admin','user']) ? $_POST['role'] : 'user';
+        // Validate role against RBAC role list
+        require_once __DIR__ . '/../../includes/rbac.php';
+        $allowedRoles = array_keys(role_options());
+        $role = in_array($_POST['role'] ?? 'user', $allowedRoles, true) ? ($_POST['role'] ?? 'user') : 'user';
         $isActive = !empty($_POST['is_active']) ? 1 : 0;
         $password = $_POST['password'] ?? '';
         if ($id) {
@@ -738,6 +771,11 @@ class AdminController
             } else {
                 $st = $pdo->prepare('UPDATE users SET username=:u, email=:e, phone=:p, role=:r, is_active=:a WHERE id=:id');
                 $st->execute([':u'=>$username, ':e'=>$email, ':p'=>$phone, ':r'=>$role, ':a'=>$isActive, ':id'=>$id]);
+            }
+            // If editing the currently logged-in user, refresh session role immediately
+            if (isset($_SESSION['user_id']) && (int)$_SESSION['user_id'] === $id) {
+                $_SESSION['role'] = $role;
+                $_SESSION['username'] = $username;
             }
         } else {
             if ($username !== '' && $password !== '') {
@@ -753,6 +791,7 @@ class AdminController
     public function reports(): void
     {
         $this->requireAdmin();
+        require_permission('report.view');
         try {
         $pdo = \App\Database::getInstance()->pdo();
 
@@ -887,6 +926,7 @@ class AdminController
     public function userDelete(): void
     {
         $this->requireAdmin();
+        require_permission('user.manage');
         $pdo = \App\Database::getInstance()->pdo();
         $id = (int)($_GET['id'] ?? 0);
         if ($id>0) {
@@ -899,6 +939,7 @@ class AdminController
     public function userToggleActive(): void
     {
         $this->requireAdmin();
+        require_permission('user.manage');
         $pdo = \App\Database::getInstance()->pdo();
         $id = (int)($_GET['id'] ?? 0); $active = (int)($_GET['a'] ?? 0);
         if ($id>0) {
@@ -911,6 +952,7 @@ class AdminController
     public function customers(): void
     {
         $this->requireAdmin();
+        require_permission('customer.view');
         $q = trim($_GET['q'] ?? '');
         $all = \App\Models\Customer::all();
         if ($q !== '') {
@@ -937,6 +979,7 @@ class AdminController
     public function customerDetail(): void
     {
         $this->requireAdmin();
+        require_permission('customer.view');
         $phone = trim($_GET['phone'] ?? '');
         $orders = $phone !== '' ? \App\Models\Customer::ordersByPhone($phone) : [];
         $customer = null;

@@ -1,4 +1,5 @@
 <?php $title = 'Quản lý đơn hàng'; ob_start(); ?>
+<?php require_once __DIR__ . '/../../includes/rbac.php'; ?>
 <style>
 .table-responsive { 
   overflow-x: auto; 
