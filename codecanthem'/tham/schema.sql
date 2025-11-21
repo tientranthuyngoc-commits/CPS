@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS products (
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Index to speed up role-based queries (e.g., listing admins/users)
+CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
+
 CREATE TABLE IF NOT EXISTS brands (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT UNIQUE NOT NULL,

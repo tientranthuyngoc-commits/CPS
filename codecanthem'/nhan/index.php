@@ -29,24 +29,6 @@ use App\Controllers\BrandController;
 use App\Controllers\PostController;
 use App\Controllers\WishlistController;
 
-$locked = false;
-if (!empty($_SESSION['user_id'])) {
-    try {
-        $pdoStatus = \App\Database::getInstance()->pdo();
-        $chk = $pdoStatus->prepare('SELECT is_active, block_reason FROM users WHERE id = :id');
-        $chk->execute([':id'=>(int)$_SESSION['user_id']]);
-        $status = $chk->fetch(\PDO::FETCH_ASSOC);
-        if (!$status || (int)($status['is_active'] ?? 0) !== 1) {
-            $reason = trim((string)($status['block_reason'] ?? 'Tài khoản đã bị khóa.'));
-            $_SESSION = ['locked_message' => 'Tài khoản của bạn đã bị khóa. Lý do: ' . $reason];
-            header('Location: index.php?action=login&blocked=1&reason=' . urlencode($reason));
-            exit;
-        }
-    } catch (\Throwable $e) {
-        // ignore
-    }
-}
-
 $action = $_GET['action'] ?? 'home';
 
 try {
@@ -165,8 +147,6 @@ try {
         case 'admin_user_save': (new AdminController())->userSave(); break;
         case 'admin_user_delete': (new AdminController())->userDelete(); break;
         case 'admin_user_toggle': (new AdminController())->userToggleActive(); break;
-        case 'admin_user_lock_form': (new AdminController())->userLockForm(); break;
-        case 'admin_user_lock_save': (new AdminController())->userLockSave(); break;
         case 'admin_reports': (new AdminController())->reports(); break;
         default: http_response_code(404); require __DIR__.'/../views/error_404.php';
     }

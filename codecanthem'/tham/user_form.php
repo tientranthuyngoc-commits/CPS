@@ -1,7 +1,4 @@
-<?php
-$title = ($item ? 'Sửa' : 'Thêm') . ' tài khoản';
-ob_start();
-?>
+<?php $title = ($item? 'Sửa' : 'Thêm') . ' tài khoản'; ob_start(); ?>
 <h1 class="h4 mb-3"><?= $title ?></h1>
 <form method="post" action="index.php?action=admin_user_save" class="card shadow-sm p-3" autocomplete="off">
   <input type="hidden" name="id" value="<?= (int)($item['id'] ?? 0) ?>">
@@ -12,13 +9,8 @@ ob_start();
     <div class="col-md-4"><label class="form-label">Mật khẩu <?= !empty($item)? '(để trống nếu giữ nguyên)':'' ?></label><input class="form-control" type="password" name="password"></div>
     <div class="col-md-4"><label class="form-label">Quyền</label>
       <select name="role" class="form-select">
-        <?php
-          require_once __DIR__ . '/../../includes/rbac.php';
-          $currentRole = $item['role'] ?? 'user';
-          foreach (role_options() as $value => $label):
-        ?>
-          <option value="<?= htmlspecialchars($value) ?>" <?= ($currentRole === $value) ? 'selected' : '' ?>><?= htmlspecialchars($label) ?></option>
-        <?php endforeach; ?>
+        <option value="user" <?= (($item['role'] ?? 'user')==='user')?'selected':'' ?>>user</option>
+        <option value="admin" <?= (($item['role'] ?? 'user')==='admin')?'selected':'' ?>>admin</option>
       </select>
     </div>
     <div class="col-md-4"><label class="form-label">Trạng thái</label>
@@ -27,10 +19,8 @@ ob_start();
         <option value="0" <?= ((int)($item['is_active'] ?? 1)===0)?'selected':'' ?>>Khóa</option>
       </select>
     </div>
-    <div class="col-12">
-      <label class="form-label">Lý do khóa tài khoản</label>
-      <textarea class="form-control" name="block_reason" rows="3" placeholder="Nhập lý do rõ ràng nếu khóa tài khoản"><?= htmlspecialchars($item['block_reason'] ?? '') ?></textarea>
-      <small class="text-muted">Người dùng sẽ thấy lý do này khi bị khóa.</small>
+    <div class="col-md-12"><label class="form-label">Lý do khóa tài khoản</label>
+      <textarea class="form-control" name="block_reason" rows="3" placeholder="Nhập lý do khóa tài khoản (nếu có)"><?= htmlspecialchars($item['block_reason'] ?? '') ?></textarea>
     </div>
   </div>
   <div class="mt-3 d-flex gap-2">
@@ -39,3 +29,4 @@ ob_start();
   </div>
 </form>
 <?php $content = ob_get_clean(); require __DIR__ . '/../layout.php'; ?>
+

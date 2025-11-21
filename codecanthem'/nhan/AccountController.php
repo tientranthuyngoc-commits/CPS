@@ -101,6 +101,43 @@ class AccountController
         require __DIR__.'/../../views/account_profile.php';
     }
 
+    public function changePassword(): void
+    {
+        $this->ensureSession(); if (empty($_SESSION['user_id'])) { header('Location: index.php?action=login'); exit; }
+        $msg = '';
+        $error = '';
+        require __DIR__.'/../../views/account_change_password.php';
+    }
+
+    public function changePasswordSubmit(): void
+    {
+        $this->ensureSession();
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: index.php?action=account_change_password'); exit; }
+        if (empty($_SESSION['user_id'])) { header('Location: index.php?action=login'); exit; }
+        $id = (int)$_SESSION['user_id'];
+        $current = $_POST['current_password'] ?? '';
+        $new = $_POST['new_password'] ?? '';
+        $confirm = $_POST['confirm_password'] ?? '';
+        $msg = '';
+        $error = '';
+        if ($current === '' || $new === '' || $new !== $confirm) {
+            $error = 'Thông tin không hợp lệ hoặc mật khẩu xác nhận không khớp.';
+            require __DIR__.'/../../views/account_change_password.php'; return;
+        }
+        $pdo = $this->pdo();
+        $st = $pdo->prepare('SELECT password_hash FROM users WHERE id=:id');
+        $st->execute([':id'=>$id]);
+        $hash = $st->fetchColumn();
+        if (!$hash || !password_verify($current, $hash)) {
+            $error = 'Mật khẩu hiện tại không đúng.';
+            require __DIR__.'/../../views/account_change_password.php'; return;
+        }
+        $newHash = password_hash($new, PASSWORD_DEFAULT);
+        $pdo->prepare('UPDATE users SET password_hash=:h WHERE id=:id')->execute([':h'=>$newHash, ':id'=>$id]);
+        $msg = 'Mật khẩu đã được cập nhật.';
+        require __DIR__.'/../../views/account_change_password.php';
+    }
+
     public function addresses(): void
     {
         $this->ensureSession(); if (empty($_SESSION['user_id'])) { header('Location: index.php?action=login'); exit; }
@@ -159,55 +196,5 @@ class AccountController
             $ins->execute([':o'=>$oid, ':u'=>(int)$_SESSION['user_id'], ':r'=>$reason]);
         }
         header('Location: index.php?action=account_order_detail&id='.$oid);
-    }
-
-    public function changePassword(): void
-    {
-        $this->ensureSession();
-        if (empty($_SESSION['user_id'])) { header('Location: index.php?action=login'); exit; }
-        $msg = '';
-        $error = '';
-        require __DIR__ . '/../../views/account_change_password.php';
-    }
-
-    public function changePasswordSubmit(): void
-    {
-        $this->ensureSession();
-        if (empty($_SESSION['user_id'])) { header('Location: index.php?action=login'); exit; }
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') { header('Location: index.php?action=account_change_password'); exit; }
-        $msg = '';
-        $error = '';
-        $current = $_POST['current_password'] ?? '';
-        $new = $_POST['new_password'] ?? '';
-        $confirm = $_POST['confirm_password'] ?? '';
-        if ($current === '' || $new === '' || $confirm === '') {
-            $error = 'Vui lòng nhập đầy đủ thông tin.';
-            require __DIR__ . '/../../views/account_change_password.php';
-            return;
-        }
-        if ($new !== $confirm) {
-            $error = 'Mật khẩu mới và xác nhận không khớp.';
-            require __DIR__ . '/../../views/account_change_password.php';
-            return;
-        }
-        $pdo = $this->pdo();
-        $st = $pdo->prepare('SELECT password_hash FROM users WHERE id=:id');
-        $st->execute([':id' => (int)$_SESSION['user_id']]);
-        $hash = $st->fetchColumn();
-        if (!$hash || !password_verify($current, (string)$hash)) {
-            $error = 'Mật khẩu hiện tại không chính xác.';
-            require __DIR__ . '/../../views/account_change_password.php';
-            return;
-        }
-        if (password_verify($new, (string)$hash)) {
-            $error = 'Mật khẩu mới phải khác mật khẩu hiện tại.';
-            require __DIR__ . '/../../views/account_change_password.php';
-            return;
-        }
-        $newHash = password_hash($new, PASSWORD_DEFAULT);
-        $pdo->prepare('UPDATE users SET password_hash=:h WHERE id=:id')
-            ->execute([':h' => $newHash, ':id' => (int)$_SESSION['user_id']]);
-        $msg = 'Đã thay đổi mật khẩu thành công.';
-        require __DIR__ . '/../../views/account_change_password.php';
     }
 }

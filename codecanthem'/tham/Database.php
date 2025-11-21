@@ -36,6 +36,8 @@ class Database
         // Seed default admin user if none exists
         try {
             $this->conn->exec("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE NOT NULL, password_hash TEXT NOT NULL, role TEXT DEFAULT 'admin', email TEXT, phone TEXT, avatar TEXT, is_active INTEGER DEFAULT 1, block_reason TEXT, email_verified_at TEXT, reset_token TEXT, reset_expires TEXT, created_at TEXT DEFAULT CURRENT_TIMESTAMP)");
+            // Ensure index on role for faster role-based queries
+            try { $this->conn->exec("CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)"); } catch(\Throwable $e) { /* ignore */ }
             // Ensure orders columns for shipping/payment tracking
             $colsO = $this->conn->query('PRAGMA table_info(orders)')->fetchAll(PDO::FETCH_ASSOC);
             $onames = array_column($colsO, 'name');

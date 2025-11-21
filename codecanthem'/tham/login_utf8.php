@@ -1,15 +1,9 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-$title = 'Đăng nhập';
+<?php $title = 'Đăng nhập'; ob_start();
+// Nếu hệ thống redirect tới login do bị khóa, hiển thị lý do
 if (empty($error) && !empty($_GET['blocked'])) {
-  $reason = trim((string)($_GET['reason'] ?? '')) ?: 'Tài khoản đã bị khóa bởi quản trị viên.';
+  $reason = trim((string)($_GET['reason'] ?? '')) ?: 'Không có lý do được cung cấp';
   $error = 'Tài khoản của bạn đã bị khóa. Lý do: ' . $reason;
 }
-if (empty($error) && !empty($_SESSION['locked_message'])) {
-  $error = $_SESSION['locked_message'];
-  unset($_SESSION['locked_message']);
-}
-ob_start();
 ?>
 <div class="row justify-content-center py-5">
   <div class="col-md-6 col-lg-4">
@@ -52,3 +46,4 @@ ob_start();
   </div>
 </div>
 <?php $content = ob_get_clean(); require __DIR__ . '/layout.php'; ?>
+

@@ -16,6 +16,7 @@
         <th>Điện thoại</th>
         <th class="text-center">Quyền</th>
         <th class="text-center">Trạng thái</th>
+        <th>Lý do khóa</th>
         <th style="width:25%" class="text-end">Hành động</th>
       </tr>
     </thead>
@@ -30,14 +31,31 @@
           <span class="badge bg-secondary"><?= htmlspecialchars(role_vi($u['role'] ?? 'user')) ?></span>
         </td>
         <td class="text-center">
-          <?= ((int)$u['is_active']===1? '<span class="badge bg-success">Hoạt động</span>' : '<span class="badge bg-secondary">Khóa</span>') ?>
+          <?php if ((int)$u['is_active'] === 1): ?>
+            <span class="badge bg-success">Hoạt động</span>
+          <?php else: ?>
+            <span class="badge bg-secondary">Khóa</span>
+          <?php endif; ?>
+        </td>
+        <td>
+          <?php if (!empty($u['block_reason'])): ?>
+            <span class="text-danger small"><?= htmlspecialchars($u['block_reason']) ?></span>
+          <?php else: ?>
+            <span class="text-muted small">—</span>
+          <?php endif; ?>
         </td>
         <td class="text-end">
           <div class="d-flex gap-1 justify-content-end">
             <a class="btn btn-sm btn-outline-primary" href="index.php?action=admin_user_form&id=<?= (int)$u['id'] ?>" title="Sửa"><i class="bi bi-pencil"></i></a>
-            <a class="btn btn-sm btn-outline-<?= (int)$u['is_active'] ? 'warning' : 'success' ?>" href="index.php?action=admin_user_toggle&id=<?= (int)$u['id'] ?>&a=<?= (int)$u['is_active']?0:1 ?>" title="<?= (int)$u['is_active']? 'Khóa':'Mở' ?>">
-              <i class="bi bi-<?= (int)$u['is_active'] ? 'lock' : 'unlock' ?>"></i>
-            </a>
+            <?php if ((int)$u['is_active']): ?>
+              <a class="btn btn-sm btn-outline-warning" href="index.php?action=admin_user_lock_form&id=<?= (int)$u['id'] ?>" title="Khóa tài khoản">
+                <i class="bi bi-lock"></i>
+              </a>
+            <?php else: ?>
+              <a class="btn btn-sm btn-outline-success" href="index.php?action=admin_user_toggle&id=<?= (int)$u['id'] ?>&a=1" title="Mở khóa tài khoản">
+                <i class="bi bi-unlock"></i>
+              </a>
+            <?php endif; ?>
             <a class="btn btn-sm btn-outline-danger" href="index.php?action=admin_user_delete&id=<?= (int)$u['id'] ?>" title="Xóa" onclick="return confirm('Xóa tài khoản này?')"><i class="bi bi-trash"></i></a>
           </div>
         </td>
@@ -45,7 +63,7 @@
       <?php endforeach; ?>
       <?php if (empty($list)): ?>
         <tr>
-          <td colspan="7" class="text-center text-muted py-5">
+          <td colspan="8" class="text-center text-muted py-5">
             <i class="bi bi-people fs-1 d-block mb-2"></i>
             Chưa có tài khoản nào
           </td>

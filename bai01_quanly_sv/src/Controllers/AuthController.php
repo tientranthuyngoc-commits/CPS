@@ -25,6 +25,12 @@ class AuthController
         $password = $_POST['password'] ?? '';
         $user = $username !== '' ? User::findByUsername($username) : null;
         if ($user && password_verify($password, $user['password_hash'])) {
+            if (empty($user['is_active'])) {
+                $reason = trim((string)($user['block_reason'] ?? 'Tài kho?n dã b? khóa.'));
+                $error = 'Tài kho?n c?a b?n dã b? khóa. Lý do: ' . $reason;
+                require __DIR__ . '/../../views/login_utf8.php';
+                return;
+            }
             session_regenerate_id(true);
             $_SESSION['user_id'] = (int)$user['id'];
             $_SESSION['username'] = $user['username'];
@@ -33,7 +39,6 @@ class AuthController
             exit;
         }
 
-        // LDAP fallback náº¿u Ä‘Æ°á»£c báº­t
         $cfg = @require __DIR__ . '/../../includes/auth_providers.php';
         $ldap = $cfg['ldap'] ?? [];
         if (!empty($ldap['enabled']) && function_exists('ldap_connect') && $username !== '' && $password !== '') {
@@ -56,6 +61,12 @@ class AuthController
                             $pdo->prepare('INSERT INTO users (username, email, password_hash, role, is_active, provider) VALUES (:u,:e,:h, "user", 1, :p)')
                                 ->execute([':u'=>$username, ':e'=>$email, ':h'=>password_hash(bin2hex(random_bytes(8)), PASSWORD_DEFAULT), ':p'=>'ldap']);
                             $u = $pdo->query('SELECT * FROM users WHERE id = '.$pdo->lastInsertId())->fetch(\PDO::FETCH_ASSOC);
+                        }
+                        if (empty($u['is_active'])) {
+                            $reason = trim((string)($u['block_reason'] ?? 'Tài kho?n dã b? khóa.'));
+                            $error = 'Tài kho?n c?a b?n dã b? khóa. Lý do: ' . $reason;
+                            require __DIR__ . '/../../views/login_utf8.php';
+                            return;
                         }
                         session_regenerate_id(true);
                         $_SESSION['user_id'] = (int)$u['id'];
