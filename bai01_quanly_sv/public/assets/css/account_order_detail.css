@@ -1,0 +1,15 @@
+:root { --primary-color:#0d6efd; --success-color:#198754; --warning-color:#ffc107; --danger-color:#dc3545; --info-color:#0dcaf0; --border-radius:8px; }
+.status-badge{font-size:.85rem;padding:.5rem 1rem;border-radius:20px}
+.status-pending{background:var(--warning-color);color:#000}
+.status-paid{background:var(--info-color);color:#000}
+.status-completed{background:var(--success-color);color:#fff}
+.status-cancelled{background:var(--danger-color);color:#fff}
+.status-return_requested{background:#6f42c1;color:#fff}
+.product-img{width:60px;height:60px;object-fit:cover;border-radius:6px}
+.timeline{position:relative;padding-left:2rem}
+.timeline::before{content:'';position:absolute;left:15px;top:0;bottom:0;width:2px;background:#e9ecef}
+.timeline-item{position:relative;margin-bottom:1.5rem}
+.timeline-item::before{content:'';position:absolute;left:-2rem;top:5px;width:12px;height:12px;border-radius:50%;background:var(--primary-color);border:2px solid #fff}
+.action-btn{border-radius:var(--border-radius);font-weight:500}
+.card{border:none;border-radius:var(--border-radius);box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.table th{border-top:none;font-weight:600;color:#495057}
