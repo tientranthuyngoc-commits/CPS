@@ -1,0 +1,15 @@
+:root { --primary-color:#0d6efd; --success-color:#198754; --warning-color:#ffc107; --danger-color:#dc3545; --info-color:#0dcaf0; --border-radius:8px; }
+.order-card{border:none;border-radius:var(--border-radius);transition:all .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.order-card:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,.12)}
+.status-badge{font-size:.75rem;padding:.35rem .75rem;border-radius:20px;font-weight:500}
+.status-pending{background:var(--warning-color);color:#000}
+.status-paid{background:var(--info-color);color:#000}
+.status-completed{background:var(--success-color);color:#fff}
+.status-cancelled{background:var(--danger-color);color:#fff}
+.status-return_requested{background:#6f42c1;color:#fff}
+.order-id{color:var(--primary-color);font-weight:600}
+.order-total{font-size:1.1rem;font-weight:600;color:#2c3e50}
+.empty-state{text-align:center;padding:3rem 1rem}
+.empty-state i{font-size:4rem;color:#dee2e6;margin-bottom:1rem}
+.filter-btn{border-radius:20px;font-weight:500}
+.filter-btn.active{background:var(--primary-color);border-color:var(--primary-color);color:#fff}

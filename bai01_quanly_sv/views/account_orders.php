@@ -2,24 +2,7 @@
 $title = 'Đơn hàng của tôi'; 
 ob_start(); 
 ?>
-
-<style>
-  :root { --primary-color:#0d6efd; --success-color:#198754; --warning-color:#ffc107; --danger-color:#dc3545; --info-color:#0dcaf0; --border-radius:8px; }
-  .order-card{border:none;border-radius:var(--border-radius);transition:all .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-  .order-card:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(0,0,0,.12)}
-  .status-badge{font-size:.75rem;padding:.35rem .75rem;border-radius:20px;font-weight:500}
-  .status-pending{background:var(--warning-color);color:#000}
-  .status-paid{background:var(--info-color);color:#000}
-  .status-completed{background:var(--success-color);color:#fff}
-  .status-cancelled{background:var(--danger-color);color:#fff}
-  .status-return_requested{background:#6f42c1;color:#fff}
-  .order-id{color:var(--primary-color);font-weight:600}
-  .order-total{font-size:1.1rem;font-weight:600;color:#2c3e50}
-  .empty-state{text-align:center;padding:3rem 1rem}
-  .empty-state i{font-size:4rem;color:#dee2e6;margin-bottom:1rem}
-  .filter-btn{border-radius:20px;font-weight:500}
-  .filter-btn.active{background:var(--primary-color);border-color:var(--primary-color);color:#fff}
-</style>
+<link rel="stylesheet" href="assets/css/account_orders.css">
 
 <div class="py-4">
   <div class="d-flex justify-content-between align-items-center mb-4">
@@ -107,28 +90,6 @@ ob_start();
   <?php endif; ?>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  const filterButtons = document.querySelectorAll('.filter-btn');
-  const orders = document.querySelectorAll('#orders-container .col-12');
-  filterButtons.forEach(btn=>{
-    btn.addEventListener('click', function(){
-      filterButtons.forEach(b=>b.classList.remove('active'));
-      this.classList.add('active');
-      const f = this.getAttribute('data-filter');
-      orders.forEach(o=>{ o.style.display = (f==='all' || o.getAttribute('data-status')===f) ? 'block' : 'none'; });
-    });
-  });
-  document.querySelectorAll('.order-card').forEach(card=>{
-    card.addEventListener('mouseenter', ()=> card.style.cursor='pointer');
-    card.addEventListener('click', function(e){
-      if(!e.target.closest('a,button')){
-        const link=this.querySelector('a[href*="account_order_detail"]'); if(link) window.location.href=link.href;
-      }
-    });
-  });
-});
-</script>
+<script src="assets/js/account_orders.js"></script>
 
 <?php $content = ob_get_clean(); require __DIR__.'/layout.php'; ?>
-
