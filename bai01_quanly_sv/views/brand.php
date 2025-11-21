@@ -1,30 +1,6 @@
-﻿<?php 
-$title = 'Thương hiệu' . (!empty($brand['name']) ? ': ' . htmlspecialchars($brand['name']) : ''); 
-ob_start(); 
-?>
-
-<style>
-    :root { --primary-color:#0d6efd; --success-color:#198754; --warning-color:#ffc107; --danger-color:#dc3545; --light-bg:#f8f9fa; --border-radius:12px; --shadow:0 4px 12px rgba(0,0,0,0.1) }
-    .brand-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:var(--border-radius);padding:2rem;margin-bottom:2rem;position:relative;overflow:hidden}
-    .brand-header::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.1"><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="20" font-weight="bold">BRAND</text></svg>');background-size:200px}
-    .product-card{border:none;border-radius:var(--border-radius);transition:.3s;box-shadow:0 2px 8px rgba(0,0,0,.08);position:relative;overflow:hidden}
-    .product-card:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
-    .product-image{height:220px;object-fit:cover;transition:transform .3s}
-    .product-card:hover .product-image{transform:scale(1.05)}
-    .product-badge{position:absolute;top:10px;left:10px;z-index:2}
-    .price-current{font-size:1.1rem;font-weight:700;color:#2c3e50}
-    .price-original{font-size:.9rem;color:#6c757d;text-decoration:line-through}
-    .discount-badge{background:linear-gradient(45deg,var(--danger-color),#e74c3c);color:#fff;padding:.25rem .5rem;border-radius:4px;font-size:.75rem;font-weight:600}
-    .filter-card{border:none;border-radius:var(--border-radius);box-shadow:0 2px 8px rgba(0,0,0,.1)}
-    .sort-select{border-radius:var(--border-radius);border:1px solid #dee2e6;transition:.3s}
-    .sort-select:focus{border-color:var(--primary-color);box-shadow:0 0 0 .25rem rgba(13,110,253,.15)}
-    .pagination .page-link{border-radius:var(--border-radius);margin:0 2px;border:none;color:#495057;font-weight:500}
-    .pagination .page-item.active .page-link{background:var(--primary-color);border-color:var(--primary-color)}
-    .empty-state{text-align:center;padding:3rem 1rem}
-    .empty-state i{font-size:4rem;color:#dee2e6;margin-bottom:1rem}
-    .loading-spinner{display:none;text-align:center;padding:2rem}
-    .opacity-75{opacity:.75}
-</style>
+<?php 
+$title = 'Thuong hi?u' . (!empty($brand['name']) ? ': ' . htmlspecialchars($brand['name']) : ''); 
+ob_start();`r`n?>`r`n<link rel="stylesheet" href="assets/css/brand.css">
 
 <div class="container py-4">
     <?php if (!empty($brand)): ?>
@@ -40,13 +16,13 @@ ob_start();
                     <div class="bg-white bg-opacity-20 rounded-pill px-3 py-2 d-inline-block">
                         <i class="bi bi-grid-3x3-gap me-2"></i>
                         <span class="fw-semibold"><?= number_format((int)($paging['total'] ?? 0),0,',','.') ?></span>
-                        <span class="opacity-75">sản phẩm</span>
+                        <span class="opacity-75">s?n ph?m</span>
                     </div>
                 </div>
             </div>
         </div>
     <?php else: ?>
-        <div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3 mb-0 fw-bold">Thương hiệu</h1></div>
+        <div class="d-flex justify-content-between align-items-center mb-4"><h1 class="h3 mb-0 fw-bold">Thuong hi?u</h1></div>
     <?php endif; ?>
 
     <div class="card filter-card mb-4"><div class="card-body">
@@ -55,27 +31,27 @@ ob_start();
                 <form method="get" action="index.php" class="row g-2 align-items-center">
                     <input type="hidden" name="action" value="brand">
                     <input type="hidden" name="id" value="<?= (int)($_GET['id'] ?? 0) ?>">
-                    <div class="col-auto"><label class="form-label mb-0 fw-semibold">Sắp xếp:</label></div>
+                    <div class="col-auto"><label class="form-label mb-0 fw-semibold">S?p x?p:</label></div>
                     <div class="col-auto">
                         <select class="form-select sort-select" name="sort" onchange="this.form.submit()">
-                            <option value="newest" <?= ($paging['sort'] ?? '')==='newest'?'selected':'' ?>>Mới nhất</option>
-                            <option value="price_asc" <?= ($paging['sort'] ?? '')==='price_asc'?'selected':'' ?>>Giá: Thấp đến Cao</option>
-                            <option value="price_desc" <?= ($paging['sort'] ?? '')==='price_desc'?'selected':'' ?>>Giá: Cao đến Thấp</option>
-                            <option value="popular" <?= ($paging['sort'] ?? '')==='popular'?'selected':'' ?>>Phổ biến nhất</option>
-                            <option value="name_asc" <?= ($paging['sort'] ?? '')==='name_asc'?'selected':'' ?>>Tên: A-Z</option>
+                            <option value="newest" <?= ($paging['sort'] ?? '')==='newest'?'selected':'' ?>>M?i nh?t</option>
+                            <option value="price_asc" <?= ($paging['sort'] ?? '')==='price_asc'?'selected':'' ?>>Gi�: Th?p d?n Cao</option>
+                            <option value="price_desc" <?= ($paging['sort'] ?? '')==='price_desc'?'selected':'' ?>>Gi�: Cao d?n Th?p</option>
+                            <option value="popular" <?= ($paging['sort'] ?? '')==='popular'?'selected':'' ?>>Ph? bi?n nh?t</option>
+                            <option value="name_asc" <?= ($paging['sort'] ?? '')==='name_asc'?'selected':'' ?>>T�n: A-Z</option>
                         </select>
                     </div>
                 </form>
             </div>
             <div class="col-md-6 text-md-end text-muted">
-                Hiển thị <span class="fw-semibold"><?= min((int)($paging['page'] ?? 1) * (int)($paging['limit'] ?? 12), (int)($paging['total'] ?? 0)) ?></span> / <span class="fw-semibold"><?= number_format((int)($paging['total'] ?? 0),0,',','.') ?></span> sản phẩm
+                Hi?n th? <span class="fw-semibold"><?= min((int)($paging['page'] ?? 1) * (int)($paging['limit'] ?? 12), (int)($paging['total'] ?? 0)) ?></span> / <span class="fw-semibold"><?= number_format((int)($paging['total'] ?? 0),0,',','.') ?></span> s?n ph?m
             </div>
         </div>
     </div></div>
 
     <div class="loading-spinner" id="loadingSpinner">
-        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div>
-        <p class="mt-2 text-muted">Đang tải sản phẩm...</p>
+        <div class="spinner-border text-primary" role="status"><span class="visually-hidden">�ang t?i...</span></div>
+        <p class="mt-2 text-muted">�ang t?i s?n ph?m...</p>
     </div>
 
     <div class="row g-4" id="productsContainer">
@@ -86,18 +62,18 @@ ob_start();
                     <div class="position-relative overflow-hidden">
                         <img src="<?= htmlspecialchars($img) ?>" alt="<?= htmlspecialchars($p['name']) ?>" class="card-img-top product-image">
                         <?php if ($hasDiscount): ?><div class="product-badge"><span class="discount-badge">-<?= $discount ?>%</span></div><?php endif; ?>
-                        <div class="position-absolute top-0 end-0 p-2" style="z-index:2"><button class="btn btn-light btn-sm rounded-circle shadow-sm" onclick="toggleWishlist(<?= (int)$p['id'] ?>)" data-bs-toggle="tooltip" title="Thêm vào yêu thích"><i class="bi bi-heart"></i></button></div>
+                        <div class="position-absolute top-0 end-0 p-2" style="z-index:2"><button class="btn btn-light btn-sm rounded-circle shadow-sm" onclick="toggleWishlist(<?= (int)$p['id'] ?>)" data-bs-toggle="tooltip" title="Th�m v�o y�u th�ch"><i class="bi bi-heart"></i></button></div>
                     </div>
                     <div class="card-body d-flex flex-column">
                         <h6 class="card-title fw-semibold mb-2" style="min-height:2.8rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;"><?= htmlspecialchars($p['name']) ?></h6>
                         <div class="mt-auto">
                             <div class="d-flex align-items-center mb-2">
-                                <span class="price-current me-2"><?= number_format($finalPrice,0,',','.') ?>₫</span>
-                                <?php if ($hasDiscount): ?><span class="price-original"><?= number_format($originalPrice,0,',','.') ?>₫</span><?php endif; ?>
+                                <span class="price-current me-2"><?= number_format($finalPrice,0,',','.') ?>?</span>
+                                <?php if ($hasDiscount): ?><span class="price-original"><?= number_format($originalPrice,0,',','.') ?>?</span><?php endif; ?>
                             </div>
                             <div class="d-grid gap-2">
-                                <a class="btn btn-primary btn-sm" href="index.php?action=product&id=<?= (int)$p['id'] ?>"><i class="bi bi-eye me-1"></i>Xem chi tiết</a>
-                                <button class="btn btn-outline-primary btn-sm" onclick="addToCart(<?= (int)$p['id'] ?>,1)"><i class="bi bi-cart-plus me-1"></i>Thêm giỏ hàng</button>
+                                <a class="btn btn-primary btn-sm" href="index.php?action=product&id=<?= (int)$p['id'] ?>"><i class="bi bi-eye me-1"></i>Xem chi ti?t</a>
+                                <button class="btn btn-outline-primary btn-sm" onclick="addToCart(<?= (int)$p['id'] ?>,1)"><i class="bi bi-cart-plus me-1"></i>Th�m gi? h�ng</button>
                             </div>
                         </div>
                     </div>
@@ -107,7 +83,7 @@ ob_start();
     </div>
 
     <?php if (empty($products)): ?>
-        <div class="card"><div class="empty-state"><i class="bi bi-box"></i><h4 class="text-muted mb-3">Chưa có sản phẩm</h4><p class="text-muted mb-4">Hiện chưa có sản phẩm nào trong thương hiệu này.</p><a href="index.php?action=products" class="btn btn-primary"><i class="bi bi-arrow-left me-2"></i>Quay lại danh sách sản phẩm</a></div></div>
+        <div class="card"><div class="empty-state"><i class="bi bi-box"></i><h4 class="text-muted mb-3">Chua c� s?n ph?m</h4><p class="text-muted mb-4">Hi?n chua c� s?n ph?m n�o trong thuong hi?u n�y.</p><a href="index.php?action=products" class="btn btn-primary"><i class="bi bi-arrow-left me-2"></i>Quay l?i danh s�ch s?n ph?m</a></div></div>
     <?php endif; ?>
 
     <?php if (($paging['pages'] ?? 1) > 1): ?>
@@ -137,3 +113,4 @@ function addToCart(id,qty){ console.log('Add to cart', id, qty); }
 $content = ob_get_clean(); 
 require __DIR__ . '/layout.php'; 
 ?>
+
