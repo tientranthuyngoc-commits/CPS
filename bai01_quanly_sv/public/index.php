@@ -6,8 +6,14 @@ if (!headers_sent()) {
     header('Content-Type: text/html; charset=UTF-8');
 }
 
-// Composer autoload for third-party packages (PhpSpreadsheet, etc.)
-require __DIR__ . '/../vendor/autoload.php';
+// Composer autoload cho thư viện ngoài (PhpSpreadsheet, ...).
+// Nếu thiếu vendor, không dừng hẳn site mà chỉ log cảnh báo (hạn chế 500).
+$__auto = __DIR__ . '/../vendor/autoload.php';
+if (is_readable($__auto)) {
+    require $__auto;
+} else {
+    error_log('Warning: vendor/autoload.php not found. Run "composer install".');
+}
 
 require __DIR__ . '/../src/Database.php';
 
@@ -179,6 +185,8 @@ try {
         default: http_response_code(404); require __DIR__.'/../views/error_404.php';
     }
 } catch (Throwable $e) {
+    // Ghi log chi tiết để dễ debug thay vì lỗi 500 mù mịt
+    error_log('APP ERROR: '.$e->getMessage().' @ '.$e->getFile().':'.$e->getLine());
     http_response_code(500);
     require __DIR__.'/../views/error_500.php';
 }
