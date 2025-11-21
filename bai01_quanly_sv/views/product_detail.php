@@ -46,6 +46,11 @@
       <div style="margin:8px 0;color:#4b5563;white-space:pre-line;">
         <?= nl2br(htmlspecialchars($product['description'] ?? 'Đang cập nhật thông tin...')) ?>
       </div>
+      <?php if (!empty($_GET['reported'])): ?>
+        <div class="alert alert-success">Đã gửi báo cáo sản phẩm. Cảm ơn bạn!</div>
+      <?php elseif (!empty($_GET['error']) && $_GET['error']==='save_failed'): ?>
+        <div class="alert alert-danger">Không lưu được báo cáo, vui lòng thử lại.</div>
+      <?php endif; ?>
       <form method="post" action="index.php?action=add_to_cart" style="margin-top:12px">
         <input type="hidden" name="id" value="<?= $pid ?>">
         <label>Số lượng:</label>
@@ -77,6 +82,17 @@
               <i class="bi bi-heart me-1"></i>Yêu thích
             </a>
           <?php endif; ?>
+        <?php endif; ?>
+      </div>
+      <div class="mt-3">
+        <?php if (!empty($_SESSION['user_id'])): ?>
+          <a class="btn btn-outline-danger btn-sm" href="index.php?action=report_product&id=<?= $pid ?>">
+            <i class="bi bi-flag me-1"></i>Báo cáo sản phẩm
+          </a>
+        <?php else: ?>
+          <a class="btn btn-outline-danger btn-sm" href="index.php?action=login">
+            <i class="bi bi-flag me-1"></i>Đăng nhập để báo cáo sản phẩm
+          </a>
         <?php endif; ?>
       </div>
 

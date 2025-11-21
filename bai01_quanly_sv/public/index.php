@@ -28,6 +28,7 @@ use App\Controllers\AccountController;
 use App\Controllers\BrandController;
 use App\Controllers\PostController;
 use App\Controllers\WishlistController;
+use App\Controllers\ComplaintController;
 
 $locked = false;
 if (!empty($_SESSION['user_id'])) {
@@ -160,6 +161,8 @@ try {
         case 'wishlist': (new WishlistController())->view(); break;
         case 'wishlist_add': (new WishlistController())->add(); break;
         case 'wishlist_remove': (new WishlistController())->remove(); break;
+        case 'report_product': (new ComplaintController())->showForm(); break;
+        case 'submit_report': (new ComplaintController())->submit(); break;
         case 'admin_users': (new AdminController())->users(); break;
         case 'admin_user_form': (new AdminController())->userForm(); break;
         case 'admin_user_save': (new AdminController())->userSave(); break;
