@@ -10,6 +10,9 @@ CREATE TABLE IF NOT EXISTS products (
   stock INTEGER DEFAULT 0,
   status TEXT DEFAULT 'active',
   brand_id INTEGER REFERENCES brands(id),
+  ai_summary TEXT,
+  ai_keywords TEXT,
+  ai_raw TEXT,
   created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

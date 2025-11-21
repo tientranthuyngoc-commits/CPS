@@ -1,6 +1,11 @@
 <?php
 namespace App\Controllers;
 
+use App\Services\AiProductIndexer;
+use App\Services\LocalProductAI;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+
 class AdminController
 {
     private function ensureSession(): void { if (session_status()===PHP_SESSION_NONE) session_start(); }
@@ -157,6 +162,119 @@ class AdminController
         $id = (int)($_GET['id'] ?? 0);
         if ($id) { \App\Models\Product::delete($id); }
         header('Location: index.php?action=admin_products');
+    }
+
+    public function productExcelImport(): void
+    {
+        $this->requireAdmin();
+        require_permission('product.update');
+        $pdo = \App\Database::getInstance()->pdo();
+        $messages = [];
+        $errors = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (empty($_FILES['excel_file']['tmp_name']) || $_FILES['excel_file']['error'] !== UPLOAD_ERR_OK) {
+                $errors[] = 'Vui lòng chọn file Excel hợp lệ.';
+            } else {
+                $tmpPath = $_FILES['excel_file']['tmp_name'];
+                try {
+                    $spreadsheet = IOFactory::load($tmpPath);
+                    $sheet = $spreadsheet->getActiveSheet();
+                    $highestRow = $sheet->getHighestRow();
+                    $highestColumn = $sheet->getHighestColumn();
+                    $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+                    if ($highestColumnIndex < 2 || $highestRow < 2) {
+                        throw new \RuntimeException('File Excel không có dữ liệu.');
+                    }
+
+                    // Cấu trúc cột mặc định: A=SKU, B=Name, C=Price, D=Stock, E=Description
+                    $importCount = 0;
+                    for ($row = 2; $row <= $highestRow; $row++) {
+                        $sku   = trim((string)$sheet->getCellByColumnAndRow(1, $row)->getValue());
+                        $name  = trim((string)$sheet->getCellByColumnAndRow(2, $row)->getValue());
+                        $price = (int)$sheet->getCellByColumnAndRow(3, $row)->getValue();
+                        $stock = (int)$sheet->getCellByColumnAndRow(4, $row)->getValue();
+                        $desc  = trim((string)$sheet->getCellByColumnAndRow(5, $row)->getValue());
+
+                        if ($sku === '' && $name === '') {
+                            continue;
+                        }
+
+                        $ai = AiProductIndexer::indexProduct($name, $desc);
+                        $aiSummary = $ai['summary'] ?? null;
+                        $aiKeywords = $ai['keywords'] ?? null;
+                        $aiRaw = $ai['raw'] ?? null;
+
+                        $st = $pdo->prepare('SELECT id FROM products WHERE sku = :sku LIMIT 1');
+                        $st->execute([':sku'=>$sku]);
+                        $existing = $st->fetch(\PDO::FETCH_ASSOC);
+
+                        if ($existing) {
+                            $u = $pdo->prepare('UPDATE products SET name=:n, price=:p, stock=:s, description=:d, ai_summary=:ai_s, ai_keywords=:ai_k, ai_raw=:ai_r WHERE id=:id');
+                            $u->execute([
+                                ':n'=>$name,
+                                ':p'=>$price,
+                                ':s'=>$stock,
+                                ':d'=>$desc,
+                                ':ai_s'=>$aiSummary,
+                                ':ai_k'=>$aiKeywords,
+                                ':ai_r'=>$aiRaw ? json_encode($aiRaw, JSON_UNESCAPED_UNICODE) : null,
+                                ':id'=>$existing['id'],
+                            ]);
+                        } else {
+                            $i = $pdo->prepare('INSERT INTO products (name, description, price, sku, stock, status, ai_summary, ai_keywords, ai_raw) VALUES (:n,:d,:p,:sku,:s,"active",:ai_s,:ai_k,:ai_r)');
+                            $i->execute([
+                                ':n'=>$name,
+                                ':d'=>$desc,
+                                ':p'=>$price,
+                                ':sku'=>$sku ?: null,
+                                ':s'=>$stock,
+                                ':ai_s'=>$aiSummary,
+                                ':ai_k'=>$aiKeywords,
+                                ':ai_r'=>$aiRaw ? json_encode($aiRaw, JSON_UNESCAPED_UNICODE) : null,
+                            ]);
+                        }
+                        $importCount++;
+                    }
+                    $messages[] = "Đã xử lý xong file. Tổng sản phẩm: {$importCount}";
+
+                    // Huấn luyện lại AI nội bộ sau khi import
+                    try {
+                        $indexPath = __DIR__ . '/../../storage/product_ai_index.json';
+                        LocalProductAI::trainNow($pdo, $indexPath);
+                        $messages[] = 'AI nội bộ đã được huấn luyện lại từ dữ liệu sản phẩm.';
+                    } catch (\Throwable $e) {
+                        $errors[] = 'Lỗi khi huấn luyện AI nội bộ: '.$e->getMessage();
+                    }
+                } catch (\Throwable $e) {
+                    $errors[] = 'Lỗi đọc Excel: '.$e->getMessage();
+                }
+            }
+        }
+
+        require __DIR__ . '/../../views/admin/product_excel_import.php';
+    }
+
+    public function productAiDemo(): void
+    {
+        $this->requireAdmin();
+        require_permission('product.view');
+        $pdo = \App\Database::getInstance()->pdo();
+
+        $answerText = null;
+        $answerProducts = [];
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $question = trim($_POST['question'] ?? '');
+            if ($question !== '') {
+                $indexPath = __DIR__ . '/../../storage/product_ai_index.json';
+                $result = LocalProductAI::answer($pdo, $question, $indexPath);
+                $answerText = $result['text'] ?? null;
+                $answerProducts = $result['products'] ?? [];
+            }
+        }
+
+        require __DIR__ . '/../../views/admin/product_ai_demo.php';
     }
 
     public function orders(): void

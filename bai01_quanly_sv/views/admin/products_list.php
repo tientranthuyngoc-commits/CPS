@@ -1,10 +1,19 @@
-<?php $title = 'Quản lý sản phẩm'; ob_start(); ?>
+﻿<?php $title = 'Quản lý sản phẩm'; ob_start(); ?>
 <?php require_once __DIR__ . '/../../includes/rbac.php'; ?>
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h4 mb-0 fw-bold"><i class="bi bi-box-seam me-2"></i>Sản phẩm</h1>
+  <h1 class="h4 mb-0 fw-bold">
+    <i class="bi bi-box-seam me-2"></i>Sản phẩm
+  </h1>
   <div class="d-flex gap-2">
-    <a class="btn btn-outline-secondary" href="index.php?action=admin"><i class="bi bi-arrow-left me-1"></i>Bảng điều khiển</a>
-    <a class="btn btn-primary" href="index.php?action=admin_product_form"><i class="bi bi-plus-circle me-1"></i>Thêm sản phẩm</a>
+    <a class="btn btn-outline-secondary" href="index.php?action=admin">
+      <i class="bi bi-arrow-left me-1"></i>Bảng điều khiển
+    </a>
+    <a class="btn btn-outline-success" href="index.php?action=admin_product_excel">
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i>Import Excel
+    </a>
+    <a class="btn btn-primary" href="index.php?action=admin_product_form">
+      <i class="bi bi-plus-circle me-1"></i>Thêm sản phẩm
+    </a>
   </div>
 </div>
 
@@ -41,8 +50,12 @@
             <small class="text-muted"><i class="bi bi-star"></i> <?= htmlspecialchars($p['brand']) ?></small>
           <?php endif; ?>
         </td>
-        <td class="text-end fw-bold text-success"><?= number_format((int)$p['price'],0,',','.') ?>₫</td>
-        <td class="text-center"><small class="text-muted"><?= htmlspecialchars($p['sku'] ?? '-') ?></small></td>
+        <td class="text-end fw-bold text-success">
+          <?= number_format((int)$p['price'],0,',','.') ?> ₫
+        </td>
+        <td class="text-center">
+          <small class="text-muted"><?= htmlspecialchars($p['sku'] ?? '-') ?></small>
+        </td>
         <td class="text-center">
           <?php if ((int)($p['stock'] ?? 0) > 0): ?>
             <span class="badge bg-success"><?= (int)$p['stock'] ?></span>
@@ -52,8 +65,17 @@
         </td>
         <td>
           <?php
-          $statusClass = ['active'=>'success','out_of_stock'=>'warning','discontinued'=>'danger'][$p['status']] ?? 'secondary';
-          $statusText = ['active'=>'Đang bán','out_of_stock'=>'Hết hàng','discontinued'=>'Ngừng kinh doanh'][$p['status']] ?? $p['status'];
+          $statusClass = [
+            'active'        => 'success',
+            'out_of_stock'  => 'warning',
+            'discontinued'  => 'danger'
+          ][$p['status']] ?? 'secondary';
+
+          $statusText = [
+            'active'        => 'Đang bán',
+            'out_of_stock'  => 'Hết hàng',
+            'discontinued'  => 'Ngừng kinh doanh'
+          [$p['status']] ?? $p['status'];
           ?>
           <span class="badge bg-<?= $statusClass ?>"><?= $statusText ?></span>
         </td>

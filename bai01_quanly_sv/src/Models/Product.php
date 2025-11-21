@@ -201,7 +201,7 @@ class Product
     public static function search(string $q, int $limit = 24): array
     {
         $pdo = Database::getInstance()->pdo();
-        $stmt = $pdo->prepare('SELECT * FROM products WHERE name LIKE :q ORDER BY id DESC LIMIT :lim');
+        $stmt = $pdo->prepare('SELECT * FROM products WHERE name LIKE :q OR sku LIKE :q OR description LIKE :q OR ai_keywords LIKE :q OR ai_summary LIKE :q ORDER BY id DESC LIMIT :lim');
         $stmt->bindValue(':q', '%'.$q.'%', \PDO::PARAM_STR);
         $stmt->bindValue(':lim', $limit, \PDO::PARAM_INT);
         $stmt->execute();
@@ -229,7 +229,7 @@ class Product
         $joins = [];
 
         if ($q !== '') {
-            $where[] = '(p.name LIKE :q OR p.sku LIKE :q OR p.description LIKE :q)';
+            $where[] = '(p.name LIKE :q OR p.sku LIKE :q OR p.description LIKE :q OR p.ai_keywords LIKE :q OR p.ai_summary LIKE :q)';
             $params[':q'] = "%$q%";
         }
         if (!empty($attrIds)) {

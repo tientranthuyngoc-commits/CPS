@@ -6,6 +6,9 @@ if (!headers_sent()) {
     header('Content-Type: text/html; charset=UTF-8');
 }
 
+// Composer autoload for third-party packages (PhpSpreadsheet, etc.)
+require __DIR__ . '/../vendor/autoload.php';
+
 require __DIR__ . '/../src/Database.php';
 
 spl_autoload_register(function($class){
@@ -100,6 +103,8 @@ try {
         case 'admin_product_form': (new AdminController())->productForm(); break;
         case 'admin_product_save': (new AdminController())->productSave(); break;
         case 'admin_product_delete': (new AdminController())->productDelete(); break;
+        case 'admin_product_excel': (new AdminController())->productExcelImport(); break;
+        case 'admin_product_ai_demo': (new AdminController())->productAiDemo(); break;
         case 'admin_orders': (new AdminController())->orders(); break;
         case 'admin_order_detail': (new AdminController())->orderDetail(); break;
         case 'admin_order_print': (new AdminController())->orderPrint(); break;

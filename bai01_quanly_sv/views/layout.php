@@ -103,6 +103,8 @@ require_once __DIR__ . '/../includes/rbac.php';
               };
               echo $link('admin','fas fa-chart-line','Tong quan');
               $show('product.view','admin_products','fas fa-box','San pham');
+              $show('product.update','admin_product_excel','fas fa-file-excel','Import Excel');
+              $show('product.view','admin_product_ai_demo','fas fa-robot','AI tu van');
               $show('order.view','admin_orders','fas fa-shopping-bag','Don hang');
               $show('report.view','admin_reports','fas fa-chart-pie','Bao cao');
               $show('content.manage','admin_banners','fas fa-image','Banner');

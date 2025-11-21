@@ -58,6 +58,9 @@ class Database
             if (!in_array('status',$pnames)) $ensure("ALTER TABLE products ADD COLUMN status TEXT DEFAULT 'active'");
             if (!in_array('brand_id',$pnames)) $ensure("ALTER TABLE products ADD COLUMN brand_id INTEGER REFERENCES brands(id)");
             if (!in_array('tax_category_id',$pnames)) $ensure("ALTER TABLE products ADD COLUMN tax_category_id INTEGER");
+            if (!in_array('ai_summary',$pnames)) $ensure("ALTER TABLE products ADD COLUMN ai_summary TEXT");
+            if (!in_array('ai_keywords',$pnames)) $ensure("ALTER TABLE products ADD COLUMN ai_keywords TEXT");
+            if (!in_array('ai_raw',$pnames)) $ensure("ALTER TABLE products ADD COLUMN ai_raw TEXT");
             $this->conn->exec("CREATE TABLE IF NOT EXISTS complaints (id INTEGER PRIMARY KEY AUTOINCREMENT, product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE, user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE, title TEXT NOT NULL, content TEXT NOT NULL, status TEXT DEFAULT 'pending', created_at TEXT DEFAULT CURRENT_TIMESTAMP)");
             // Ensure new columns exist (idempotent)
             $cols = $this->conn->query('PRAGMA table_info(users)')->fetchAll(PDO::FETCH_ASSOC);
