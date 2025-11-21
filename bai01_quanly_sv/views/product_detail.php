@@ -1,9 +1,13 @@
-<?php $title = $product ? $product['name'] : 'Sản phẩm'; ob_start(); ?>
+<?php
+$title = $product ? $product['name'] : 'San pham';
+ob_start();
+?>
+<link rel="stylesheet" href="assets/css/product_detail.css">
 
 <?php if (!$product): ?>
   <div class="alert alert-warning">
     <i class="fas fa-exclamation-triangle me-2"></i>
-    Không tìm thấy sản phẩm.
+    Khong tim thay san pham.
   </div>
 <?php else: ?>
   <?php
@@ -25,40 +29,40 @@
     <div>
       <img id="mainImg" class="cover" src="<?= htmlspecialchars($gallery[0]) ?>" alt="<?= htmlspecialchars($product['name']) ?>">
       <?php if (count($gallery) > 1): ?>
-      <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+      <div class="thumb-row">
         <?php foreach ($gallery as $g): ?>
-          <img src="<?= htmlspecialchars($g) ?>" alt="thumb" style="width:56px;height:56px;object-fit:cover;border:1px solid #e5e7eb;border-radius:6px;cursor:pointer" onclick="changeImage(this,'<?= htmlspecialchars($g) ?>')">
+          <img src="<?= htmlspecialchars($g) ?>" alt="thumb" class="thumb" onclick="changeImage(this,'<?= htmlspecialchars($g) ?>')">
         <?php endforeach; ?>
       </div>
       <?php endif; ?>
     </div>
     <div>
-      <h1 style="margin:0 0 8px 0; font-size:20px;">&nbsp;<?= htmlspecialchars($product['name']) ?></h1>
-      <div style="margin:8px 0">
+      <h1 class="product-title"><?= htmlspecialchars($product['name']) ?></h1>
+      <div class="price-box">
         <?php if ($hasD): ?>
-          <span class="price"><?= number_format((int)$promo,0,',','.') ?>₫</span>
-          <span style="text-decoration:line-through;color:#6b7280;margin-left:8px;"><?= number_format((int)$product['price'],0,',','.') ?>₫</span>
-          <span style="color:#16a34a;margin-left:8px;">-<?= $discount ?>%</span>
+          <span class="price promo"><?= number_format((int)$promo,0,',','.') ?>₫</span>
+          <span class="price-old"><?= number_format((int)$product['price'],0,',','.') ?>₫</span>
+          <span class="price-off">-<?= $discount ?>%</span>
         <?php else: ?>
           <span class="price"><?= number_format((int)$product['price'],0,',','.') ?>₫</span>
         <?php endif; ?>
       </div>
-      <div style="margin:8px 0;color:#4b5563;white-space:pre-line;">
-        <?= nl2br(htmlspecialchars($product['description'] ?? 'Đang cập nhật thông tin...')) ?>
+      <div class="product-description">
+        <?= nl2br(htmlspecialchars($product['description'] ?? 'Dang cap nhat thong tin...')) ?>
       </div>
       <?php if (!empty($_GET['reported'])): ?>
-        <div class="alert alert-success">Đã gửi báo cáo sản phẩm. Cảm ơn bạn!</div>
+        <div class="alert alert-success mt-2">Da gui bao cao san pham. Cam on ban!</div>
       <?php elseif (!empty($_GET['error']) && $_GET['error']==='save_failed'): ?>
-        <div class="alert alert-danger">Không lưu được báo cáo, vui lòng thử lại.</div>
+        <div class="alert alert-danger mt-2">Khong luu duoc bao cao, vui long thu lai.</div>
       <?php endif; ?>
-      <form method="post" action="index.php?action=add_to_cart" style="margin-top:12px">
+      <form class="purchase-actions" method="post" action="index.php?action=add_to_cart">
         <input type="hidden" name="id" value="<?= $pid ?>">
-        <label>Số lượng:</label>
-        <input type="number" name="quantity" value="1" min="1" style="width:80px;margin:0 8px">
-        <button class="btn primary" type="submit"><i class="fas fa-shopping-cart me-1"></i>Thêm vào giỏ</button>
+        <label for="qty">So luong:</label>
+        <input id="qty" type="number" name="quantity" value="1" min="1" class="qty-input">
+        <button class="btn primary" type="submit"><i class="fas fa-shopping-cart me-1"></i>Them vao gio</button>
         <button class="btn" type="button" onclick="buyNow(<?= $pid ?>)">Mua ngay</button>
       </form>
-      <div style="margin-top:8px; display:flex; gap:8px; align-items:center;">
+      <div class="actions-row">
         <?php 
         $isInWishlist = false;
         if (!empty($_SESSION['user_id'])) {
@@ -69,17 +73,17 @@
         }
         ?>
         <?php if ($isInWishlist): ?>
-          <a class="btn btn-outline-danger btn-sm" href="index.php?action=wishlist_remove&id=<?= $pid ?>&redirect=product" style="text-decoration:none;">
-            <i class="bi bi-heart-fill me-1"></i>Đã yêu thích
+          <a class="btn btn-outline-danger btn-sm" href="index.php?action=wishlist_remove&id=<?= $pid ?>&redirect=product">
+            <i class="bi bi-heart-fill me-1"></i>Da yeu thich
           </a>
         <?php else: ?>
           <?php if (empty($_SESSION['user_id'])): ?>
-            <a class="btn btn-outline-danger btn-sm" href="index.php?action=login" style="text-decoration:none;">
-              <i class="bi bi-heart me-1"></i>Yêu thích
+            <a class="btn btn-outline-danger btn-sm" href="index.php?action=login">
+              <i class="bi bi-heart me-1"></i>Yeu thich
             </a>
           <?php else: ?>
-            <a class="btn btn-outline-danger btn-sm" href="index.php?action=wishlist_add&id=<?= $pid ?>&redirect=product" style="text-decoration:none;">
-              <i class="bi bi-heart me-1"></i>Yêu thích
+            <a class="btn btn-outline-danger btn-sm" href="index.php?action=wishlist_add&id=<?= $pid ?>&redirect=product">
+              <i class="bi bi-heart me-1"></i>Yeu thich
             </a>
           <?php endif; ?>
         <?php endif; ?>
@@ -87,22 +91,22 @@
       <div class="mt-3">
         <?php if (!empty($_SESSION['user_id'])): ?>
           <a class="btn btn-outline-danger btn-sm" href="index.php?action=report_product&id=<?= $pid ?>">
-            <i class="bi bi-flag me-1"></i>Báo cáo sản phẩm
+            <i class="bi bi-flag me-1"></i>Bao cao san pham
           </a>
         <?php else: ?>
           <a class="btn btn-outline-danger btn-sm" href="index.php?action=login">
-            <i class="bi bi-flag me-1"></i>Đăng nhập để báo cáo sản phẩm
+            <i class="bi bi-flag me-1"></i>Dang nhap de bao cao
           </a>
         <?php endif; ?>
       </div>
 
       <?php if (!empty($specs)): ?>
-      <div style="margin-top:16px">
-        <strong>Thông số kỹ thuật</strong>
-        <div style="margin-top:8px">
+      <div class="specs-card">
+        <strong>Thong so ky thuat</strong>
+        <div class="specs-list">
           <?php foreach ($specs as $s): ?>
-            <div style="display:flex;gap:8px;border-bottom:1px solid #e5e7eb;padding:6px 0">
-              <div style="width:160px;color:#374151;"><?= htmlspecialchars($s['type']) ?>:</div>
+            <div class="spec-row">
+              <div class="spec-type"><?= htmlspecialchars($s['type']) ?>:</div>
               <div><?= htmlspecialchars($s['name']) ?></div>
             </div>
           <?php endforeach; ?>
@@ -118,36 +122,36 @@
     $ratings = $rs->fetchAll(PDO::FETCH_ASSOC) ?: [];
     $avg = 0; if ($ratings) { $sum=0; foreach ($ratings as $r) { $sum += (int)($r['rating'] ?? 0); } if (count($ratings) > 0) { $avg = round($sum / count($ratings), 1); } }
   ?>
-  <div style="background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin-top:16px">
-    <h2 class="h5" style="margin:0 0 12px 0">Đánh giá & nhận xét</h2>
+  <div class="rating-card">
+    <h2 class="h5 mb-3">Danh gia & nhan xet</h2>
     <?php if (!empty($avg) && $avg > 0): ?>
-      <div style="margin-bottom:8px">Trung bình: <strong><?= $avg ?>/5</strong> (<?= count($ratings) ?> đánh giá)</div>
+      <div class="mb-2">Trung binh: <strong><?= $avg ?>/5</strong> (<?= count($ratings) ?> danh gia)</div>
     <?php endif; ?>
     <?php if (!empty($_SESSION['user_id'])): ?>
-      <form method="post" action="index.php?action=product_rate" style="margin:12px 0">
+      <form class="rating-form" method="post" action="index.php?action=product_rate">
         <input type="hidden" name="product_id" value="<?= $pid ?>">
-        <label>Chọn sao</label>
+        <label>Chon sao</label>
         <select name="rating">
           <?php for($i=5;$i>=1;$i--): ?><option value="<?= $i ?>"><?= $i ?> ★</option><?php endfor; ?>
         </select>
-        <input name="comment" placeholder="Chia sẻ trải nghiệm của bạn..." style="width:60%;margin:0 8px">
-        <button class="btn primary">Gửi</button>
+        <input name="comment" class="rating-input" placeholder="Chia se trai nghiem...">
+        <button class="btn primary">Gui</button>
       </form>
     <?php else: ?>
-      <div class="alert alert-info">Bạn cần <a href="index.php?action=login">đăng nhập</a> để đánh giá.</div>
+      <div class="alert alert-info">Ban can <a href="index.php?action=login">dang nhap</a> de danh gia.</div>
     <?php endif; ?>
-    <div>
+    <div class="rating-list">
       <?php if (empty($ratings)): ?>
-        <div class="text-muted">Chưa có đánh giá nào.</div>
+        <div class="text-muted">Chua co danh gia nao.</div>
       <?php else: ?>
         <?php foreach ($ratings as $r): ?>
-          <div style="border-top:1px solid #e5e7eb;padding:8px 0">
-            <div style="color:#f59e0b">
+          <div class="rating-item">
+            <div class="rating-stars">
               <?php for($i=1;$i<=5;$i++): ?>
-                <i class="fas fa-star<?= $i <= (int)($r['rating'] ?? 0) ? '' : ' text-muted' ?>"></i>
+                <i class="fa<?= $i <= (int)$r['rating'] ? 's' : 'r' ?> fa-star"></i>
               <?php endfor; ?>
             </div>
-            <div style="font-size:12px;color:#6b7280;">&nbsp;<?= htmlspecialchars($r['created_at'] ?? '') ?></div>
+            <div class="rating-date"><?= htmlspecialchars($r['created_at'] ?? '') ?></div>
             <div><?= htmlspecialchars($r['comment'] ?? '') ?></div>
           </div>
         <?php endforeach; ?>
@@ -160,7 +164,6 @@
   function changeImage(el, src){
     document.getElementById('mainImg').src = src;
   }
-  
   function buyNow(productId) {
     const quantity = document.querySelector('input[name="quantity"]').value || 1;
     window.location.href = 'index.php?action=checkout_from&id=' + productId + '&qty=' + quantity;
@@ -168,109 +171,3 @@
 </script>
 
 <?php $content = ob_get_clean(); require __DIR__ . '/layout.php'; ?>
-<style>
-/* === Khung chi tiết sản phẩm === */
-.product-detail {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
-  align-items: start;
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-  margin-top: 12px;
-}
-
-/* === Ảnh sản phẩm === */
-.product-detail img.cover {
-  width: 100%;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-.product-detail img.cover:hover {
-  transform: scale(1.03);
-}
-
-/* === Ảnh thumbnail === */
-.product-detail div img[onclick] {
-  transition: transform 0.2s ease, border-color 0.2s;
-}
-.product-detail div img[onclick]:hover {
-  transform: scale(1.1);
-  border-color: #3b82f6;
-}
-
-/* === Giá tiền === */
-.price {
-  color: #e11d48;
-  font-weight: bold;
-  font-size: 20px;
-}
-
-/* === Nút bấm === */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #f3f4f6;
-  color: #111827;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: all 0.25s ease;
-}
-.btn:hover {
-  background: #e5e7eb;
-  transform: translateY(-1px);
-}
-.btn.primary {
-  background: #3b82f6;
-  color: white;
-  border: none;
-}
-.btn.primary:hover {
-  background: #2563eb;
-}
-
-/* === Bảng thông số kỹ thuật === */
-.product-detail strong {
-  font-size: 16px;
-  color: #111827;
-}
-.product-detail .specs div {
-  padding: 6px 0;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  gap: 8px;
-}
-
-/* === Phần đánh giá === */
-.product-detail + div {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-}
-
-.fa-star {
-  color: #fbbf24;
-  margin-right: 2px;
-}
-
-/* === Responsive === */
-@media (max-width: 768px) {
-  .product-detail {
-    grid-template-columns: 1fr;
-  }
-  .product-detail img.cover {
-    max-height: 300px;
-  }
-}
-</style>
-
