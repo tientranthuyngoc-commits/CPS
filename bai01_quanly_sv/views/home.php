@@ -1,5 +1,5 @@
 <?php $title = 'Trang chu'; ob_start(); ?>
- <link rel="stylesheet" href="/assets/css/index.css">
+ <link rel="stylesheet" href="assets/css/index.css">
  <link rel="stylesheet" href="assets/css/home.css">
 
 <?php $banners = \App\Models\Banner::allActive(); if (!empty($banners)): ?>

@@ -25,7 +25,7 @@ require_once __DIR__ . '/../includes/rbac.php';
   </head>
   <body>
     <div class="floating-gif">
-      <img src="public/images/flash-sale.gif" alt="Flash Sale">
+      <img src="images/flash-sale.gif" alt="Flash Sale">
     </div>
 
     <nav class="navbar navbar-expand-lg navbar-light sticky-top navbar-sci-fi">
@@ -52,7 +52,7 @@ require_once __DIR__ . '/../includes/rbac.php';
                 </a>
                 <ul class="dropdown-menu">
                   <?php foreach ($categories as $c): ?>
-                    <li><a class="dropdown-item" href="index.php?action=brand&category=<?= (int)$c['id'] ?>">
+                    <li><a class="dropdown-item" href="index.php?action=home&cat=<?= (int)$c['id'] ?>">
                       <?= htmlspecialchars($c['name']) ?>
                     </a></li>
                   <?php endforeach; ?>
