@@ -44,6 +44,26 @@ class OrderAdmin
     public static function updateStatus(int $id, string $status): bool
     {
         $pdo = Database::getInstance()->pdo();
+        $allowed = ['pending','confirmed','shipping','completed','cancelled'];
+        if (!in_array($status, $allowed, true)) {
+            return false;
+        }
+        $current = $pdo->prepare('SELECT status FROM orders WHERE id = :id');
+        $current->execute([':id'=>$id]);
+        $currentStatus = (string)$current->fetchColumn();
+        if ($currentStatus === '') {
+            return false;
+        }
+        $flow = [
+            'pending'   => ['confirmed','cancelled'],
+            'confirmed' => ['shipping','cancelled'],
+            'shipping'  => ['completed','cancelled'],
+            'completed' => [],
+            'cancelled' => [],
+        ];
+        if (!in_array($status, $flow[$currentStatus] ?? [], true) && $status !== $currentStatus) {
+            return false;
+        }
         $stmt = $pdo->prepare('UPDATE orders SET status = :s WHERE id = :id');
         return $stmt->execute([':s'=>$status, ':id'=>$id]);
     }

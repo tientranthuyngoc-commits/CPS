@@ -21,10 +21,11 @@ ob_start();
       <div>Khong tim thay don hang.</div>
     </div>
   <?php else: ?>
-    <?php 
+      <?php 
       $statusMap = [
         'pending' => ['text' => 'Cho xac nhan', 'class' => 'status-pending'],
-        'paid' => ['text' => 'Dang giao', 'class' => 'status-paid'],
+        'confirmed' => ['text' => 'Da xac nhan', 'class' => 'status-paid'],
+        'shipping' => ['text' => 'Dang giao', 'class' => 'status-paid'],
         'completed' => ['text' => 'Hoan thanh', 'class' => 'status-completed'],
         'cancelled' => ['text' => 'Da huy', 'class' => 'status-cancelled'],
         'return_requested' => ['text' => 'Yeu cau doi/tra', 'class' => 'status-return_requested'],

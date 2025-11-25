@@ -26,7 +26,7 @@ class AdminController
             'products' => (int)$pdo->query('SELECT COUNT(*) FROM products')->fetchColumn(),
             'orders'   => (int)$pdo->query('SELECT COUNT(*) FROM orders')->fetchColumn(),
             'users'    => (int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn(),
-            'revenue'  => (int)$pdo->query('SELECT COALESCE(SUM(total),0) FROM orders WHERE status IN ("paid","completed","done","success")')->fetchColumn(),
+            'revenue'  => (int)$pdo->query('SELECT COALESCE(SUM(total),0) FROM orders WHERE status IN ("confirmed","shipping","completed")')->fetchColumn(),
         ];
 
         $recentOrders = $pdo->query('SELECT id, customer_name, total, status, created_at FROM orders ORDER BY id DESC LIMIT 5')->fetchAll(\PDO::FETCH_ASSOC);

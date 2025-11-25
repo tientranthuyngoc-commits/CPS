@@ -17,7 +17,8 @@ ob_start();
     <div class="d-flex flex-wrap gap-2">
       <button class="btn btn-outline-primary filter-btn active" data-filter="all">Tất cả</button>
       <button class="btn btn-outline-primary filter-btn" data-filter="pending">Chờ xác nhận</button>
-      <button class="btn btn-outline-primary filter-btn" data-filter="paid">Đang giao</button>
+      <button class="btn btn-outline-primary filter-btn" data-filter="confirmed">Đã xác nhận</button>
+      <button class="btn btn-outline-primary filter-btn" data-filter="shipping">Đang giao</button>
       <button class="btn btn-outline-primary filter-btn" data-filter="completed">Hoàn thành</button>
       <button class="btn btn-outline-primary filter-btn" data-filter="cancelled">Đã hủy</button>
     </div>
@@ -28,7 +29,8 @@ ob_start();
       <?php 
         $statusMap = [
           'pending' => ['text'=>'Chờ xác nhận','class'=>'status-pending'],
-          'paid' => ['text'=>'Đang giao','class'=>'status-paid'],
+          'confirmed' => ['text'=>'Đã xác nhận','class'=>'status-paid'],
+          'shipping' => ['text'=>'Đang giao','class'=>'status-paid'],
           'completed' => ['text'=>'Hoàn thành','class'=>'status-completed'],
           'cancelled' => ['text'=>'Đã hủy','class'=>'status-cancelled'],
           'return_requested' => ['text'=>'Yêu cầu đổi/trả','class'=>'status-return_requested'],
