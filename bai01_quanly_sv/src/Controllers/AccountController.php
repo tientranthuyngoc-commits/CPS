@@ -120,8 +120,14 @@ class AccountController
     {
         $this->ensureSession(); if (empty($_SESSION['user_id'])) { header('Location: index.php?action=login'); exit; }
         $pdo = $this->pdo(); $id = (int)$_SESSION['user_id'];
-        $st = $pdo->prepare('SELECT * FROM orders WHERE customer_name = (SELECT username FROM users WHERE id=:id) OR phone IN (SELECT phone FROM addresses WHERE user_id=:id) ORDER BY id DESC');
-        $st->execute([':id'=>$id]);
+        $userStmt = $pdo->prepare('SELECT username, phone FROM users WHERE id=:id');
+        $userStmt->execute([':id'=>$id]);
+        $userRow = $userStmt->fetch(\PDO::FETCH_ASSOC) ?: [];
+        $username = $userRow['username'] ?? '';
+        $userPhone = $userRow['phone'] ?? '';
+
+        $st = $pdo->prepare('SELECT * FROM orders WHERE customer_name = :u OR phone = :p OR phone IN (SELECT phone FROM addresses WHERE user_id=:id) ORDER BY id DESC');
+        $st->execute([':u'=>$username, ':p'=>$userPhone, ':id'=>$id]);
         $orders = $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
         require __DIR__.'/../../views/account_orders.php';
     }
