@@ -45,15 +45,22 @@ class OrderAdmin
     {
         $pdo = Database::getInstance()->pdo();
         $allowed = ['pending','confirmed','shipping','completed','cancelled'];
-        if (!in_array($status, $allowed, true)) {
-            return false;
-        }
+        $normalize = static function (string $s): string {
+            $s = strtolower($s);
+            if ($s === 'paid') return 'confirmed';
+            if ($s === 'success' || $s === 'done') return 'completed';
+            return $s;
+        };
+        $status = $normalize($status);
+        if (!in_array($status, $allowed, true)) { return false; }
+
         $current = $pdo->prepare('SELECT status FROM orders WHERE id = :id');
         $current->execute([':id'=>$id]);
         $currentStatus = (string)$current->fetchColumn();
         if ($currentStatus === '') {
             return false;
         }
+        $currentStatus = $normalize($currentStatus);
         $flow = [
             'pending'   => ['confirmed','cancelled'],
             'confirmed' => ['shipping','cancelled'],
@@ -61,6 +68,11 @@ class OrderAdmin
             'completed' => [],
             'cancelled' => [],
         ];
+        // nếu trạng thái hiện tại không nằm trong allowed (legacy) thì cho phép cập nhật thẳng
+        if (!isset($flow[$currentStatus])) {
+            $stmt = $pdo->prepare('UPDATE orders SET status = :s WHERE id = :id');
+            return $stmt->execute([':s'=>$status, ':id'=>$id]);
+        }
         if (!in_array($status, $flow[$currentStatus] ?? [], true) && $status !== $currentStatus) {
             return false;
         }
