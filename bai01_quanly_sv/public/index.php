@@ -165,6 +165,8 @@ try {
         case 'admin_page_form': (new AdminController())->pageForm(); break;
         case 'admin_page_save': (new AdminController())->pageSave(); break;
         case 'admin_page_delete': (new AdminController())->pageDelete(); break;
+        case 'admin_returns': (new AdminController())->returnsList(); break;
+        case 'admin_returns_update': (new AdminController())->returnsUpdate(); break;
         case 'admin_customers': (new AdminController())->customers(); break;
         case 'admin_customer_detail': (new AdminController())->customerDetail(); break;
         case 'brand': (new BrandController())->index(); break;

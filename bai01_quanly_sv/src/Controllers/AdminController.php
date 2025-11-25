@@ -1154,4 +1154,37 @@ class AdminController
         }
         require __DIR__ . '/../../views/admin/customer_detail.php';
     }
+
+    public function returnsList(): void
+    {
+        $this->requireAdmin();
+        require_permission('order.view');
+        $pdo = \App\Database::getInstance()->pdo();
+        $rows = $pdo->query('
+            SELECT r.id, r.order_id, r.user_id, r.reason, r.status, r.created_at,
+                   o.customer_name, o.total, o.status AS order_status,
+                   u.username
+            FROM order_returns r
+            LEFT JOIN orders o ON o.id = r.order_id
+            LEFT JOIN users u ON u.id = r.user_id
+            ORDER BY r.id DESC
+        ')->fetchAll(\PDO::FETCH_ASSOC) ?: [];
+        require __DIR__ . '/../../views/admin/returns_list.php';
+    }
+
+    public function returnsUpdate(): void
+    {
+        $this->requireAdmin();
+        require_permission('order.update');
+        $id = (int)($_POST['id'] ?? 0);
+        $status = trim($_POST['status'] ?? '');
+        $allowed = ['requested','approved','rejected','in_progress','finished'];
+        if ($id > 0 && in_array($status, $allowed, true)) {
+            $pdo = \App\Database::getInstance()->pdo();
+            $st = $pdo->prepare('UPDATE order_returns SET status=:s WHERE id=:id');
+            $st->execute([':s'=>$status, ':id'=>$id]);
+        }
+        header('Location: index.php?action=admin_returns');
+        exit;
+    }
 }
