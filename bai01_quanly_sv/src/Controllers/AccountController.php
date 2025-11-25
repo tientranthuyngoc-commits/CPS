@@ -210,4 +210,69 @@ class AccountController
         $msg = 'Đã thay đổi mật khẩu thành công.';
         require __DIR__ . '/../../views/account_change_password.php';
     }
+    public function uploadAvatar(): void
+    {
+        $this->ensureSession();
+        header('Content-Type: application/json');
+        if (empty($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            return;
+        }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST' || empty($_FILES['avatar'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid request']);
+            return;
+        }
+
+        $file = $_FILES['avatar'];
+        if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Upload failed']);
+            return;
+        }
+        if (($file['size'] ?? 0) > 2 * 1024 * 1024) {
+            http_response_code(400);
+            echo json_encode(['error' => 'File too large (max 2MB)']);
+            return;
+        }
+
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $file['tmp_name']);
+        finfo_close($finfo);
+        $allowed = [
+            'image/jpeg' => 'jpg',
+            'image/png'  => 'png',
+            'image/webp' => 'webp',
+        ];
+        if (!isset($allowed[$mime])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid image type']);
+            return;
+        }
+
+        $ext = $allowed[$mime];
+        $filename = 'u' . (int)$_SESSION['user_id'] . '_' . time() . '.' . $ext;
+        $destDir = __DIR__ . '/../../public/uploads/avatars';
+        if (!is_dir($destDir)) {
+            @mkdir($destDir, 0775, true);
+        }
+        $destPath = $destDir . '/' . $filename;
+        if (!move_uploaded_file($file['tmp_name'], $destPath)) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Cannot save file']);
+            return;
+        }
+
+        $relative = 'uploads/avatars/' . $filename;
+        $pdo = $this->pdo();
+        $pdo->prepare('UPDATE users SET avatar = :a WHERE id = :id')
+            ->execute([':a' => $relative, ':id' => (int)$_SESSION['user_id']]);
+        $_SESSION['avatar'] = $relative;
+
+        echo json_encode([
+            'ok' => true,
+            'url' => $relative . '?v=' . time(),
+        ]);
+    }
 }

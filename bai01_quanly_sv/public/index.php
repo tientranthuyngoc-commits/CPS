@@ -104,6 +104,7 @@ try {
         case 'account_order_return': (new AccountController())->orderReturn(); break;
         case 'account_change_password': (new AccountController())->changePassword(); break;
         case 'account_change_password_submit': (new AccountController())->changePasswordSubmit(); break;
+        case 'account_avatar_upload': (new AccountController())->uploadAvatar(); break;
         case 'admin': (new AdminController())->dashboard(); break;
         case 'admin_products': (new AdminController())->products(); break;
         case 'admin_product_form': (new AdminController())->productForm(); break;
